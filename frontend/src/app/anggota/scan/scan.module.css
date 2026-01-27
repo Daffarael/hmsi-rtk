@@ -1,0 +1,171 @@
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 1rem 0;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+/* Scanner Area */
+.scannerArea {
+    background: var(--putih);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.startPrompt {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.cameraIcon {
+    width: 80px;
+    height: 80px;
+    background: var(--utama-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--utama-500);
+}
+
+.startPrompt p {
+    color: var(--abu-500);
+    margin-bottom: 1.5rem;
+}
+
+.errorText {
+    color: var(--gagal);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* Scanner Container */
+.scannerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+}
+
+.qrReader {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.scanOverlay {
+    display: none;
+}
+
+/* Processing */
+.processingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 1000;
+}
+
+.processingOverlay p {
+    color: var(--abu-600);
+}
+
+/* Result */
+.resultContainer {
+    background: var(--putih);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+
+.successIcon {
+    width: 100px;
+    height: 100px;
+    background: var(--sukses-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--sukses);
+}
+
+.resultSuccess h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.resultInfo {
+    background: var(--abu-50);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    text-align: left;
+}
+
+.infoItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--abu-100);
+    font-size: 0.875rem;
+}
+
+.infoItem:last-child {
+    border-bottom: none;
+}
+
+.infoItem span {
+    color: var(--abu-500);
+}
+
+.infoItem strong {
+    color: var(--abu-900);
+}
+
+/* Error Result */
+
+.errorIcon {
+    width: 100px;
+    height: 100px;
+    background: var(--gagal-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--gagal);
+}
+
+.resultError h2 {
+    font-size: 1.25rem;
+    color: var(--gagal);
+    margin-bottom: 0.5rem;
+}
+
+.resultError p {
+    color: var(--abu-600);
+}

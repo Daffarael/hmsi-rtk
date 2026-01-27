@@ -1,0 +1,154 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.bgAnimation {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.bgCircle1 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, var(--sukses-light), var(--utama-100));
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    top: -150px;
+    right: -150px;
+    animation: float1 20s ease-in-out infinite;
+}
+
+.bgCircle2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-200));
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    bottom: -100px;
+    left: -100px;
+    animation: float2 15s ease-in-out infinite;
+}
+
+@keyframes float1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(-30px, 30px);
+    }
+}
+
+@keyframes float2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(30px, -30px);
+    }
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    z-index: 10;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.iconNew {
+    width: 80px;
+    height: 80px;
+    background: var(--utama-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--utama-500);
+}
+
+.iconSuccess {
+    width: 100px;
+    height: 100px;
+    background: var(--sukses-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--sukses);
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--abu-900);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    color: var(--abu-600);
+    line-height: 1.6;
+}
+
+.successContainer {
+    text-align: center;
+}
+
+.credentialBox {
+    background: var(--abu-50);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.credentialItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--abu-200);
+}
+
+.credentialItem:last-child {
+    border-bottom: none;
+}
+
+.credentialLabel {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+.credentialValue {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--abu-900);
+}

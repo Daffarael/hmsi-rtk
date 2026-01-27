@@ -1,0 +1,226 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--abu-900), var(--abu-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.filters .input-field {
+    max-width: 300px;
+    transition: all 0.3s ease;
+}
+
+.filters .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+/* Table cells with animations */
+.nameCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--utama-400), var(--utama-600));
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    transition: all 0.3s ease;
+}
+
+tr:hover .avatar {
+    transform: scale(1.08) rotate(-3deg);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+}
+
+.fullName {
+    font-weight: 600;
+    color: var(--abu-900);
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+}
+
+tr:hover .fullName {
+    color: var(--utama-600);
+}
+
+.nickname {
+    font-size: 0.75rem;
+    color: var(--abu-500);
+}
+
+.noData {
+    color: var(--abu-400);
+}
+
+.username {
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, var(--abu-100), var(--abu-50));
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-md);
+    color: var(--abu-600);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+tr:hover .username {
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
+    color: var(--utama-600);
+}
+
+/* Actions with hover effects */
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-lg);
+    border: none;
+    background: linear-gradient(135deg, var(--abu-100), var(--abu-50));
+    color: var(--abu-600);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.actionBtn:hover {
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
+    color: var(--utama-600);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.deleteBtn:hover {
+    background: linear-gradient(135deg, var(--gagal-light), rgba(239, 68, 68, 0.08));
+    color: var(--gagal);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Empty State - Same as Rapat */
+.emptyState {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    transition: all 0.4s ease;
+}
+
+.emptyState:hover {
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
+}
+
+.emptyState svg {
+    color: var(--utama-300);
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.emptyState p {
+    color: var(--abu-500);
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .filters .input-field {
+        max-width: 100%;
+    }
+}
+
+/* Tipe Badge Styles */
+.tipeBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.presidium {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.1));
+    color: var(--oranye-600);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.staff {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--abu-600);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}

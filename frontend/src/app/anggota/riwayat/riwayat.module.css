@@ -1,0 +1,185 @@
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+/* Stats Card */
+.statsCard {
+    background: linear-gradient(135deg, var(--utama-500), var(--utama-600));
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+}
+
+.progressRing {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.progressSvg {
+    transform: rotate(-90deg);
+}
+
+.progressBg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 3.8;
+}
+
+.progressFill {
+    fill: none;
+    stroke: white;
+    stroke-width: 3.8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.5s ease;
+}
+
+.progressValue {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.statsInfo h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: white;
+}
+
+.statsInfo p {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    color: white;
+}
+
+.statsInfo strong {
+    font-weight: 600;
+}
+
+/* List */
+.listContainer {
+    background: var(--putih);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.listItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--abu-100);
+}
+
+.listItem:last-child {
+    border-bottom: none;
+}
+
+.itemDate {
+    width: 48px;
+    height: 48px;
+    background: var(--utama-50);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.day {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--utama-500);
+    line-height: 1;
+}
+
+.month {
+    font-size: 0.625rem;
+    color: var(--utama-400);
+    text-transform: uppercase;
+}
+
+.itemInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.itemInfo h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--abu-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.125rem;
+}
+
+.itemInfo p {
+    font-size: 0.75rem;
+    color: var(--abu-500);
+}
+
+.itemTime {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.scanTime {
+    font-size: 0.75rem;
+    color: var(--abu-400);
+}
+
+/* Empty State */
+.emptyState {
+    background: var(--putih);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.emptyState svg {
+    color: var(--abu-300);
+    margin-bottom: 1rem;
+}
+
+.emptyState p {
+    color: var(--abu-500);
+}

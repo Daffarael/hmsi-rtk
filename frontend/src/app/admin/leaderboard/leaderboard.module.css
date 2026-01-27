@@ -1,0 +1,270 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--abu-900), var(--abu-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+.bobotInfo {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.04));
+    border: 1px solid var(--oranye-100);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.bobotInfo:hover {
+    border-color: var(--oranye-200);
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.1);
+}
+
+.bobotInfo span {
+    color: var(--abu-600);
+}
+
+.bobotInfo code {
+    background: var(--oranye-50);
+    color: var(--oranye-600);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.8rem;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filters select {
+    max-width: 180px;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+}
+
+/* Premium Table Container - Same as Rapat */
+.tableWrapper {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.tableWrapper:hover {
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
+}
+
+/* Rank Rows with Premium Gradients */
+.gold {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent) !important;
+    border-left: 4px solid gold !important;
+}
+
+.silver {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), transparent) !important;
+    border-left: 4px solid silver !important;
+}
+
+.bronze {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), transparent) !important;
+    border-left: 4px solid #cd7f32 !important;
+}
+
+.normal {
+    transition: all 0.3s ease;
+}
+
+.normal:hover {
+    background: rgba(249, 115, 22, 0.05) !important;
+}
+
+.rankBadge {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+/* Name Cell with Avatar */
+.nameCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--oranye-400), var(--oranye-500));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    transition: all 0.3s ease;
+}
+
+tr:hover .avatar {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+.fullName {
+    font-weight: 600;
+    color: var(--abu-900);
+}
+
+.nickname {
+    font-size: 0.75rem;
+    color: var(--abu-500);
+}
+
+/* Badges */
+.tipeBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.presidium {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.1));
+    color: var(--oranye-600);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.staff {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--abu-600);
+    border: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.statBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 0.3rem 0.6rem;
+    background: var(--abu-50);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--abu-700);
+    transition: all 0.3s ease;
+}
+
+tr:hover .statBadge {
+    background: var(--oranye-50);
+    color: var(--oranye-600);
+}
+
+.skorBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 0.4rem 0.75rem;
+    background: linear-gradient(135deg, var(--oranye-400), var(--oranye-500));
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    transition: all 0.3s ease;
+}
+
+tr:hover .skorBadge {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+/* Empty State - Same as Rapat */
+.emptyState {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    transition: all 0.4s ease;
+}
+
+.emptyState:hover {
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
+}
+
+.emptyState svg {
+    color: var(--utama-300);
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.emptyState p {
+    color: var(--abu-500);
+    font-size: 0.9375rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+
+    .filters select {
+        max-width: 100%;
+    }
+}

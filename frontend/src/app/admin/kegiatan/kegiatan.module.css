@@ -1,0 +1,317 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--abu-900), var(--abu-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+}
+
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Ultra Premium Card - Same as Rapat */
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    cursor: pointer;
+}
+
+/* Premium Shimmer Effect */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(249, 115, 22, 0.08),
+            rgba(255, 237, 213, 0.15),
+            rgba(249, 115, 22, 0.08),
+            transparent);
+    transition: left 0.8s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Glow Border Effect - Orange */
+.card::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(234, 88, 12, 0.5), rgba(249, 115, 22, 0.4));
+    border-radius: calc(var(--radius-xl) + 3px);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    filter: blur(12px);
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+.card:hover::after {
+    opacity: 0.5;
+}
+
+.card:hover {
+    box-shadow:
+        0 30px 60px -15px rgba(249, 115, 22, 0.25),
+        0 0 0 1px rgba(249, 115, 22, 0.15);
+    transform: translateY(-12px) scale(1.02);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
+/* Card Header */
+.cardHeader {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(249, 115, 22, 0.08);
+    background: linear-gradient(135deg, rgba(255, 247, 237, 0.6), transparent);
+    position: relative;
+    z-index: 2;
+    gap: 1rem;
+}
+
+.cardHeader h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--abu-900);
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.card:hover .cardHeader h3 {
+    color: var(--oranye-600);
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.published {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.1));
+    color: var(--sukses);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.draft {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--abu-500);
+    border: 1px solid rgba(100, 116, 139, 0.1);
+}
+
+.cardBody {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 2;
+}
+
+.info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--abu-600);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.info svg {
+    color: var(--oranye-400);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .info svg {
+    transform: scale(1.1);
+}
+
+.card:hover .info {
+    color: var(--abu-700);
+}
+
+.cardActions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(249, 115, 22, 0.08);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    background: rgba(255, 247, 237, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.actionBtn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--abu-50);
+    color: var(--abu-600);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.actionBtn:hover {
+    background: var(--oranye-50);
+    color: var(--oranye-500);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+}
+
+.publishBtn {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--sukses);
+}
+
+.publishBtn:hover {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--sukses);
+}
+
+.deleteBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--gagal);
+}
+
+/* Empty State - Same as Rapat */
+.emptyState {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    transition: all 0.4s ease;
+}
+
+.emptyState:hover {
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
+}
+
+.emptyState svg {
+    color: var(--utama-300);
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.emptyState p {
+    color: var(--abu-500);
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+}
+
+/* Fullscreen Modal */
+.fullscreenOverlay {
+    background: rgba(0, 0, 0, 0.95) !important;
+}
+
+.fullscreenModal {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Tipe Badge */
+.tipeBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.presidium {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.1));
+    color: var(--oranye-600);
+}
+
+.staff {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--abu-600);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
