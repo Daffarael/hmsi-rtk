@@ -8,36 +8,12 @@ const getNamaHari = (date) => {
     return hari[new Date(date).getDay()];
 };
 
-// Helper: Get minggu ke-berapa dalam bulan (sesuai kalender: Senin-Minggu)
-// Contoh: Januari 2026 dimulai Kamis, maka:
-// - Minggu 1 = 1-4 Jan (Kamis-Minggu)
-// - Minggu 2 = 5-11 Jan (Senin-Minggu)
-// - dst.
+// Helper: Get kemunculan ke-berapa hari tersebut dalam bulan
+// Contoh: Senin pertama di bulan = 1, Senin kedua = 2, dst.
 const getMingguKe = (date) => {
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = d.getMonth();
     const day = d.getDate();
-
-    // First day of month and its day of week
-    const firstOfMonth = new Date(year, month, 1);
-    const firstDayOfWeek = firstOfMonth.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-
-    // Convert to ISO week day (Mon=1, Tue=2, ..., Sun=7)
-    const isoFirstDay = firstDayOfWeek === 0 ? 7 : firstDayOfWeek;
-
-    // Days in first week (from 1st to Sunday)
-    // If month starts Mon (1), first week has 7 days
-    // If month starts Thu (4), first week has 4 days (Thu, Fri, Sat, Sun)
-    // If month starts Sun (7), first week has 1 day
-    const daysInFirstWeek = 8 - isoFirstDay;
-
-    if (day <= daysInFirstWeek) {
-        return 1;
-    }
-
-    // After week 1, calculate 7-day blocks
-    return Math.ceil((day - daysInFirstWeek) / 7) + 1;
+    return Math.ceil(day / 7);
 };
 
 // ==================== JADWAL PIKET ====================

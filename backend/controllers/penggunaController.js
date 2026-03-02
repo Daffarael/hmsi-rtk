@@ -95,7 +95,10 @@ exports.penggunaById = async (req, res) => {
 // Buat pengguna baru (anggota)
 exports.buatPengguna = async (req, res) => {
     try {
-        const { nama_lengkap, nama_panggilan, nim, nomor_telepon, divisi_id, angkatan } = req.body;
+        const { nama_lengkap, nama_panggilan, nim, nomor_telepon, divisi_id, angkatan, tipe_anggota } = req.body;
+
+        console.log('[DEBUG] buatPengguna - req.body:', JSON.stringify(req.body));
+        console.log('[DEBUG] buatPengguna - tipe_anggota:', tipe_anggota);
 
         if (!nama_lengkap || !nama_panggilan || !nim) {
             return res.status(400).json({
@@ -131,6 +134,7 @@ exports.buatPengguna = async (req, res) => {
             username,
             kata_sandi: nim, // Password default = NIM
             angkatan: angkatan || null,
+            tipe_anggota: tipe_anggota || 'staff',
             peran: 'anggota',
             aktif: true
         });
@@ -158,7 +162,7 @@ exports.buatPengguna = async (req, res) => {
 // Update pengguna
 exports.updatePengguna = async (req, res) => {
     try {
-        const { nama_lengkap, nama_panggilan, nim, nomor_telepon, divisi_id, angkatan, aktif } = req.body;
+        const { nama_lengkap, nama_panggilan, nim, nomor_telepon, divisi_id, angkatan, aktif, tipe_anggota } = req.body;
 
         const pengguna = await Pengguna.findOne({
             where: {
@@ -183,6 +187,7 @@ exports.updatePengguna = async (req, res) => {
             nomor_telepon: nomor_telepon !== undefined ? nomor_telepon : pengguna.nomor_telepon,
             divisi_id: divisi_id !== undefined ? divisi_id : pengguna.divisi_id,
             angkatan: angkatan !== undefined ? angkatan : pengguna.angkatan,
+            tipe_anggota: tipe_anggota !== undefined ? tipe_anggota : pengguna.tipe_anggota,
             aktif: aktif !== undefined ? aktif : pengguna.aktif
         });
 
