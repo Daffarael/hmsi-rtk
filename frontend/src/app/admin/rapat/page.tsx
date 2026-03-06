@@ -246,21 +246,21 @@ export default function RapatPage() {
                             </div>
 
                             <div className={styles.cardFooter}>
-                                {!r.dipublikasikan ? (
+                                {!r.dipublikasikan || isExpired(r.kadaluarsa_pada) ? (
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => { setPublishRapat(r); setShowPublishModal(true); }}
                                     >
                                         Publikasi QR
                                     </button>
-                                ) : !isExpired(r.kadaluarsa_pada) ? (
+                                ) : (
                                     <button
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => handleUnpublish(r.id)}
                                     >
                                         Batalkan
                                     </button>
-                                ) : null}
+                                )}
                                 <Link href={`/admin/rapat/${r.id}`} className="btn btn-secondary btn-sm">
                                     Detail
                                 </Link>

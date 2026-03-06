@@ -161,13 +161,63 @@ exports.riwayatSaya = async (req, res) => {
             where: { periode_id: req.pengguna.periode_id }
         });
 
+        // Get piket kehadiran
+        const { JadwalPiket, KehadiranPiket, BuktiPiket, KehadiranKegiatan, Kegiatan } = require('../models');
+
+        const jadwalPiketUser = await JadwalPiket.findAll({
+            where: { pengguna_id: req.pengguna.id, aktif: true }
+        });
+
+        const jadwalIds = jadwalPiketUser.map(j => j.id);
+
+        let kehadiranPiket = [];
+        if (jadwalIds.length > 0) {
+            kehadiranPiket = await KehadiranPiket.findAll({
+                where: { jadwal_piket_id: jadwalIds },
+                include: [
+                    {
+                        model: JadwalPiket,
+                        as: 'jadwal_piket',
+                        attributes: ['hari']
+                    },
+                    {
+                        model: BuktiPiket,
+                        as: 'bukti_piket',
+                        attributes: ['id']
+                    }
+                ],
+                order: [['tanggal', 'DESC']]
+            });
+        }
+
+        // Get kegiatan kehadiran
+        const kehadiranKegiatan = await KehadiranKegiatan.findAll({
+            where: { pengguna_id: req.pengguna.id },
+            include: [{
+                model: Kegiatan,
+                as: 'kegiatan',
+                attributes: ['id', 'nama', 'tanggal_kegiatan', 'lokasi']
+            }],
+            order: [[{ model: Kegiatan, as: 'kegiatan' }, 'tanggal_kegiatan', 'DESC']]
+        });
+
         res.status(200).json({
             sukses: true,
             data: {
                 kehadiran: kehadiran,
                 total_hadir: kehadiran.length,
                 total_rapat: totalRapat,
-                persentase: totalRapat > 0 ? Math.round((kehadiran.length / totalRapat) * 100) : 0
+                persentase: totalRapat > 0 ? Math.round((kehadiran.length / totalRapat) * 100) : 0,
+                kehadiran_piket: kehadiranPiket.map(kp => ({
+                    id: kp.id,
+                    tanggal: kp.tanggal,
+                    hari: kp.jadwal_piket?.hari || '-',
+                    waktu_scan: kp.waktu_scan,
+                    ada_bukti: kp.bukti_piket?.length > 0
+                })),
+                total_piket: kehadiranPiket.length,
+                kehadiran_kegiatan: kehadiranKegiatan,
+                total_kegiatan: kehadiranKegiatan.length
             }
         });
 

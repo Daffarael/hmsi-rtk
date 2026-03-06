@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/lib/api';
@@ -10,12 +10,21 @@ interface ScanResult {
     sukses: boolean;
     pesan?: string;
     data?: {
-        rapat: string;
+        rapat?: string;
         jenis_rapat?: string;
-        tanggal: string;
+        tanggal?: string;
         lokasi?: string;
-        waktu_scan: string;
+        waktu_scan?: string;
+        // Piket fields
+        kehadiran_piket_id?: number;
+        hari?: string;
     };
+}
+
+interface PhotoItem {
+    file: File;
+    preview: string;
+    tipe: 'selfie' | 'sekre_sebelum' | 'sekre_sesudah';
 }
 
 // Detect in-app browsers that block camera access
@@ -32,7 +41,6 @@ function detectInAppBrowser(): string | null {
     if (/TikTok/i.test(ua)) return 'TikTok';
 
     // WhatsApp in-app browser (Android)
-    // On iOS, WhatsApp opens links in Safari, but on Android it uses in-app
     if (/WhatsApp/i.test(ua)) return 'WhatsApp';
 
     return null;
@@ -73,69 +81,41 @@ function getErrorMessage(err: any): string {
     return `Gagal mengakses kamera: ${msg || 'Error tidak diketahui'}. Coba gunakan browser Chrome atau Safari terbaru.`;
 }
 
+type PiketStep = 'selfie' | 'sekre_sebelum' | 'sekre_sesudah' | 'review' | 'uploading' | 'done';
+
+const PIKET_STEP_LABELS: Record<PiketStep, string> = {
+    selfie: 'Foto Selfie',
+    sekre_sebelum: 'Foto Sekre (Sebelum)',
+    sekre_sesudah: 'Foto Sekre (Sesudah)',
+    review: 'Review & Kirim',
+    uploading: 'Mengupload...',
+    done: 'Selesai',
+};
+
 export default function ScanPage() {
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [inAppBrowser, setInAppBrowser] = useState<string | null>(null);
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const hasProcessedRef = useRef(false);
     const pendingStartRef = useRef(false);
+    const inAppBrowser = typeof window !== 'undefined' ? detectInAppBrowser() : null;
 
-    // Check for in-app browser on mount
-    useEffect(() => {
-        setInAppBrowser(detectInAppBrowser());
-    }, []);
+    // Piket photo upload states
+    const [piketMode, setPiketMode] = useState(false);
+    const [piketStep, setPiketStep] = useState<PiketStep>('selfie');
+    const [kehadiranPiketId, setKehadiranPiketId] = useState<number | null>(null);
+    const [photos, setPhotos] = useState<PhotoItem[]>([]);
+    const [uploadError, setUploadError] = useState('');
+    const [uploadProgress, setUploadProgress] = useState('');
 
-    // Hide any file input that html5-qrcode might create (enforce camera-only)
-    useEffect(() => {
-        if (!scanning) return;
+    // Camera capture ref
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-        const hideFileInputs = () => {
-            const fileInputs = document.querySelectorAll('#qr-reader input[type="file"]');
-            fileInputs.forEach((input) => {
-                (input as HTMLElement).style.display = 'none';
-            });
-            // Also hide the "scan from file" text/buttons
-            const buttons = document.querySelectorAll('#qr-reader a, #qr-reader span[style]');
-            buttons.forEach((el) => {
-                const text = el.textContent?.toLowerCase() || '';
-                if (text.includes('file') || text.includes('image') || text.includes('galeri')) {
-                    (el as HTMLElement).style.display = 'none';
-                }
-            });
-        };
-
-        // Run immediately and also observe for dynamically added elements
-        hideFileInputs();
-        const observer = new MutationObserver(hideFileInputs);
-        const container = document.getElementById('qr-reader');
-        if (container) {
-            observer.observe(container, { childList: true, subtree: true });
-        }
-
-        return () => observer.disconnect();
-    }, [scanning]);
-
-    const startScanning = async () => {
+    const startScanning = () => {
         setError('');
-        setResult(null);
         hasProcessedRef.current = false;
-
-        // Check secure context
-        if (typeof window !== 'undefined' && !window.isSecureContext) {
-            setError('Kamera hanya bisa diakses melalui HTTPS. Hubungi admin untuk mengaktifkan SSL.');
-            return;
-        }
-
-        // Check if mediaDevices API exists
-        if (!navigator?.mediaDevices?.getUserMedia) {
-            setError('Browser ini tidak mendukung akses kamera. Silakan gunakan Google Chrome atau Safari versi terbaru.');
-            return;
-        }
-
-        // First set scanning to true so the qr-reader div renders
         pendingStartRef.current = true;
         setScanning(true);
     };
@@ -159,12 +139,47 @@ export default function ScanPage() {
 
                     setIsProcessing(true);
                     try {
-                        const response = await api.scanQR(decodedText);
-                        setResult({
-                            sukses: response.sukses,
-                            pesan: response.pesan,
-                            data: response.data as ScanResult['data'],
-                        });
+                        // Detect if this is a Piket QR
+                        const isPiketQR = decodedText.startsWith('PIKET-');
+
+                        if (isPiketQR) {
+                            const response = await api.scanPiket(decodedText);
+                            setResult({
+                                sukses: response.sukses,
+                                pesan: response.pesan,
+                                data: response.data as ScanResult['data'],
+                            });
+                            if (response.sukses && response.data?.kehadiran_piket_id) {
+                                setKehadiranPiketId(response.data.kehadiran_piket_id);
+                                setPiketMode(true);
+                                setPiketStep('selfie');
+                            }
+                        } else {
+                            // Try rapat scan first
+                            try {
+                                const response = await api.scanQR(decodedText);
+                                setResult({
+                                    sukses: response.sukses,
+                                    pesan: response.pesan,
+                                    data: response.data as ScanResult['data'],
+                                });
+                            } catch (rapatErr: any) {
+                                // If rapat fails, try kegiatan
+                                try {
+                                    const kegiatanResponse = await api.scanKegiatan(decodedText);
+                                    setResult({
+                                        sukses: kegiatanResponse.sukses,
+                                        pesan: kegiatanResponse.pesan,
+                                        data: kegiatanResponse.data as ScanResult['data'],
+                                    });
+                                } catch (kegiatanErr: any) {
+                                    setResult({
+                                        sukses: false,
+                                        pesan: rapatErr.message || 'QR tidak valid',
+                                    });
+                                }
+                            }
+                        }
                     } catch (err: any) {
                         setResult({
                             sukses: false,
@@ -191,7 +206,6 @@ export default function ScanPage() {
                         () => { /* QR parse error - ignore */ }
                     );
                 } catch (envError: any) {
-                    // If rear camera fails with OverconstrainedError, try any camera
                     if (envError?.name === 'OverconstrainedError' ||
                         envError?.message?.includes('Overconstrained') ||
                         envError?.message?.includes('Requested device not found')) {
@@ -204,7 +218,6 @@ export default function ScanPage() {
                                 () => { }
                             );
                         } catch (userError: any) {
-                            // Last resort: try without any facing mode constraint
                             try {
                                 const devices = await Html5Qrcode.getCameras();
                                 if (devices.length > 0) {
@@ -239,7 +252,6 @@ export default function ScanPage() {
         if (scannerRef.current) {
             try {
                 const state = scannerRef.current.getState();
-                // Only stop if scanning (state 2 = SCANNING)
                 if (state === 2) {
                     await scannerRef.current.stop();
                 }
@@ -255,16 +267,313 @@ export default function ScanPage() {
     useEffect(() => {
         return () => {
             stopScanning();
+            // Cleanup photo previews
+            photos.forEach(p => URL.revokeObjectURL(p.preview));
         };
     }, []);
 
     const resetScan = () => {
         setResult(null);
         setError('');
+        setPiketMode(false);
+        setPiketStep('selfie');
+        setKehadiranPiketId(null);
+        setUploadError('');
+        setUploadProgress('');
+        // Cleanup photo previews
+        photos.forEach(p => URL.revokeObjectURL(p.preview));
+        setPhotos([]);
         hasProcessedRef.current = false;
     };
 
+    // Handle photo capture from file input
+    const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        const file = files[0];
+        const preview = URL.createObjectURL(file);
+
+        setPhotos(prev => [...prev, {
+            file,
+            preview,
+            tipe: piketStep as 'selfie' | 'sekre_sebelum' | 'sekre_sesudah',
+        }]);
+
+        // Auto-advance to next step
+        if (piketStep === 'selfie') {
+            setPiketStep('sekre_sebelum');
+        }
+        // For sekre photos, stay on same step until user advances manually
+
+        // Reset input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const removePhoto = (index: number) => {
+        setPhotos(prev => {
+            const newPhotos = [...prev];
+            URL.revokeObjectURL(newPhotos[index].preview);
+            newPhotos.splice(index, 1);
+            return newPhotos;
+        });
+    };
+
+    const goToNextStep = () => {
+        if (piketStep === 'sekre_sebelum') {
+            setPiketStep('sekre_sesudah');
+        } else if (piketStep === 'sekre_sesudah') {
+            setPiketStep('review');
+        }
+    };
+
+    const goToPrevStep = () => {
+        if (piketStep === 'sekre_sebelum') {
+            setPiketStep('selfie');
+        } else if (piketStep === 'sekre_sesudah') {
+            setPiketStep('sekre_sebelum');
+        } else if (piketStep === 'review') {
+            setPiketStep('sekre_sesudah');
+        }
+    };
+
+    // Check if current step has required photos
+    const hasPhotosForStep = (step: PiketStep): boolean => {
+        return photos.some(p => p.tipe === step);
+    };
+
+    const canProceed = (): boolean => {
+        if (piketStep === 'selfie') return hasPhotosForStep('selfie');
+        if (piketStep === 'sekre_sebelum') return hasPhotosForStep('sekre_sebelum');
+        if (piketStep === 'sekre_sesudah') return hasPhotosForStep('sekre_sesudah');
+        return true;
+    };
+
+    const getPhotosForStep = (step: string): PhotoItem[] => {
+        return photos.filter(p => p.tipe === step);
+    };
+
+    // Upload all photos
+    const handleUpload = async () => {
+        if (!kehadiranPiketId) return;
+
+        setPiketStep('uploading');
+        setUploadError('');
+
+        try {
+            const files = photos.map(p => p.file);
+            const tipeList = photos.map(p => p.tipe);
+            setUploadProgress(`Mengupload ${files.length} foto...`);
+            await api.uploadBuktiPiket(kehadiranPiketId, files, tipeList);
+            setPiketStep('done');
+        } catch (err: any) {
+            setUploadError(err.message || 'Gagal mengupload foto');
+            setPiketStep('review');
+        }
+    };
+
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+    // Render piket photo upload flow
+    const renderPiketFlow = () => {
+        if (!piketMode) return null;
+
+        const stepOrder: PiketStep[] = ['selfie', 'sekre_sebelum', 'sekre_sesudah', 'review'];
+        const currentStepIndex = stepOrder.indexOf(piketStep);
+
+        return (
+            <motion.div
+                className={styles.piketFlow}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                {/* Step Indicator */}
+                {piketStep !== 'uploading' && piketStep !== 'done' && (
+                    <div className={styles.stepIndicator}>
+                        {stepOrder.map((step, i) => (
+                            <div
+                                key={step}
+                                className={`${styles.stepDot} ${i <= currentStepIndex ? styles.stepActive : ''} ${i < currentStepIndex ? styles.stepDone : ''}`}
+                            >
+                                <span className={styles.stepNumber}>
+                                    {i < currentStepIndex ? '✓' : i + 1}
+                                </span>
+                                <span className={styles.stepLabel}>
+                                    {step === 'selfie' ? 'Selfie' :
+                                        step === 'sekre_sebelum' ? 'Sebelum' :
+                                            step === 'sekre_sesudah' ? 'Sesudah' : 'Kirim'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Photo capture steps */}
+                {(piketStep === 'selfie' || piketStep === 'sekre_sebelum' || piketStep === 'sekre_sesudah') && (
+                    <div className={styles.captureSection}>
+                        <h3 className={styles.stepTitle}>
+                            {piketStep === 'selfie' && '📸 Ambil Foto Selfie'}
+                            {piketStep === 'sekre_sebelum' && '🏢 Foto Sekretariat (Sebelum Bersih)'}
+                            {piketStep === 'sekre_sesudah' && '✨ Foto Sekretariat (Sesudah Bersih)'}
+                        </h3>
+                        <p className={styles.stepDesc}>
+                            {piketStep === 'selfie' && 'Ambil foto diri Anda sebagai bukti kehadiran piket'}
+                            {piketStep === 'sekre_sebelum' && 'Ambil foto kondisi sekretariat sebelum dibersihkan'}
+                            {piketStep === 'sekre_sesudah' && 'Ambil foto kondisi sekretariat setelah dibersihkan'}
+                        </p>
+
+                        {/* Preview photos for this step */}
+                        {getPhotosForStep(piketStep).length > 0 && (
+                            <div className={styles.photoGrid}>
+                                {getPhotosForStep(piketStep).map((photo, i) => {
+                                    const globalIndex = photos.indexOf(photo);
+                                    return (
+                                        <div key={i} className={styles.photoPreview}>
+                                            <img src={photo.preview} alt={`Foto ${i + 1}`} />
+                                            <button
+                                                className={styles.removePhotoBtn}
+                                                onClick={() => removePhoto(globalIndex)}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Camera capture button */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            capture={piketStep === 'selfie' ? 'user' : 'environment'}
+                            onChange={handlePhotoCapture}
+                            style={{ display: 'none' }}
+                        />
+
+                        <div className={styles.captureActions}>
+                            {(piketStep === 'selfie' ? getPhotosForStep('selfie').length === 0 : true) && (
+                                <motion.button
+                                    className={`btn btn-primary ${styles.captureBtn}`}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                        <circle cx="12" cy="13" r="4" />
+                                    </svg>
+                                    {getPhotosForStep(piketStep).length > 0 ? 'Tambah Foto' : 'Ambil Foto'}
+                                </motion.button>
+                            )}
+                        </div>
+
+                        {/* Navigation */}
+                        <div className={styles.stepNav}>
+                            {piketStep !== 'selfie' && (
+                                <button className="btn btn-secondary" onClick={goToPrevStep}>
+                                    ← Kembali
+                                </button>
+                            )}
+                            {canProceed() && (
+                                <motion.button
+                                    className="btn btn-primary"
+                                    onClick={goToNextStep}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    Lanjut →
+                                </motion.button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Review step */}
+                {piketStep === 'review' && (
+                    <div className={styles.reviewSection}>
+                        <h3 className={styles.stepTitle}>📋 Review Bukti Piket</h3>
+
+                        {uploadError && (
+                            <div className={styles.errorBox}>
+                                <p>{uploadError}</p>
+                            </div>
+                        )}
+
+                        <div className={styles.reviewGroups}>
+                            {(['selfie', 'sekre_sebelum', 'sekre_sesudah'] as const).map(tipe => {
+                                const tipePhotos = getPhotosForStep(tipe);
+                                return (
+                                    <div key={tipe} className={styles.reviewGroup}>
+                                        <h4>
+                                            {tipe === 'selfie' && '📸 Selfie'}
+                                            {tipe === 'sekre_sebelum' && '🏢 Sekre (Sebelum)'}
+                                            {tipe === 'sekre_sesudah' && '✨ Sekre (Sesudah)'}
+                                            <span className={styles.photoCount}>{tipePhotos.length} foto</span>
+                                        </h4>
+                                        <div className={styles.photoGrid}>
+                                            {tipePhotos.map((photo, i) => (
+                                                <div key={i} className={styles.photoPreview}>
+                                                    <img src={photo.preview} alt={`${tipe} ${i + 1}`} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className={styles.stepNav}>
+                            <button className="btn btn-secondary" onClick={goToPrevStep}>
+                                ← Kembali
+                            </button>
+                            <motion.button
+                                className="btn btn-primary"
+                                onClick={handleUpload}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                ✅ Kirim Bukti
+                            </motion.button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Uploading state */}
+                {piketStep === 'uploading' && (
+                    <div className={styles.uploadingSection}>
+                        <div className="loader"></div>
+                        <p>{uploadProgress}</p>
+                    </div>
+                )}
+
+                {/* Done state */}
+                {piketStep === 'done' && (
+                    <div className={styles.doneSection}>
+                        <div className={styles.successIcon}>
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <h2>Bukti Piket Berhasil Dikirim! 🎉</h2>
+                        <p>Foto selfie dan foto sekretariat telah diupload</p>
+                        <motion.button
+                            className="btn btn-primary btn-lg w-full mt-4"
+                            onClick={resetScan}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            Selesai
+                        </motion.button>
+                    </div>
+                )}
+            </motion.div>
+        );
+    };
 
     return (
         <motion.div
@@ -399,45 +708,81 @@ export default function ScanPage() {
                         exit={{ scale: 0.9, opacity: 0 }}
                     >
                         {result.sukses ? (
-                            <div className={styles.resultSuccess}>
-                                <div className={styles.successIcon}>
-                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                        <polyline points="22 4 12 14.01 9 11.01" />
-                                    </svg>
-                                </div>
-                                <h2>Kehadiran Tercatat! 🎉</h2>
-                                <div className={styles.resultInfo}>
-                                    <div className={styles.infoItem}>
-                                        <span>Rapat</span>
-                                        <strong>{result.data?.rapat}</strong>
-                                    </div>
-                                    {result.data?.jenis_rapat && (
-                                        <div className={styles.infoItem}>
-                                            <span>Jenis</span>
-                                            <strong>{result.data.jenis_rapat}</strong>
+                            <>
+                                {/* Piket scan success → show photo flow */}
+                                {piketMode ? (
+                                    <div className={styles.resultSuccess}>
+                                        <div className={styles.piketScanSuccess}>
+                                            <div className={styles.successIcon}>
+                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                                </svg>
+                                            </div>
+                                            <h2>Absensi Piket Tercatat! ✅</h2>
+                                            <p className={styles.piketSubtext}>
+                                                Sekarang upload bukti foto piket Anda
+                                            </p>
                                         </div>
-                                    )}
-                                    <div className={styles.infoItem}>
-                                        <span>Tanggal</span>
-                                        <strong>{new Date(result.data?.tanggal || '').toLocaleDateString('id-ID', {
-                                            day: 'numeric', month: 'long', year: 'numeric'
-                                        })}</strong>
+                                        {renderPiketFlow()}
                                     </div>
-                                    {result.data?.lokasi && (
-                                        <div className={styles.infoItem}>
-                                            <span>Lokasi</span>
-                                            <strong>{result.data.lokasi}</strong>
+                                ) : (
+                                    /* Rapat/normal scan success */
+                                    <div className={styles.resultSuccess}>
+                                        <div className={styles.successIcon}>
+                                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                                <polyline points="22 4 12 14.01 9 11.01" />
+                                            </svg>
                                         </div>
-                                    )}
-                                    <div className={styles.infoItem}>
-                                        <span>Waktu Scan</span>
-                                        <strong>{new Date(result.data?.waktu_scan || '').toLocaleTimeString('id-ID', {
-                                            hour: '2-digit', minute: '2-digit'
-                                        })}</strong>
+                                        <h2>Kehadiran Tercatat! 🎉</h2>
+                                        <div className={styles.resultInfo}>
+                                            {result.data?.rapat && (
+                                                <div className={styles.infoItem}>
+                                                    <span>Rapat</span>
+                                                    <strong>{result.data.rapat}</strong>
+                                                </div>
+                                            )}
+                                            {result.data?.jenis_rapat && (
+                                                <div className={styles.infoItem}>
+                                                    <span>Jenis</span>
+                                                    <strong>{result.data.jenis_rapat}</strong>
+                                                </div>
+                                            )}
+                                            {result.data?.tanggal && (
+                                                <div className={styles.infoItem}>
+                                                    <span>Tanggal</span>
+                                                    <strong>{new Date(result.data.tanggal).toLocaleDateString('id-ID', {
+                                                        day: 'numeric', month: 'long', year: 'numeric'
+                                                    })}</strong>
+                                                </div>
+                                            )}
+                                            {result.data?.lokasi && (
+                                                <div className={styles.infoItem}>
+                                                    <span>Lokasi</span>
+                                                    <strong>{result.data.lokasi}</strong>
+                                                </div>
+                                            )}
+                                            {result.data?.waktu_scan && (
+                                                <div className={styles.infoItem}>
+                                                    <span>Waktu Scan</span>
+                                                    <strong>{new Date(result.data.waktu_scan).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit', minute: '2-digit'
+                                                    })}</strong>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <motion.button
+                                            className="btn btn-primary btn-lg w-full mt-4"
+                                            onClick={resetScan}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            Scan Lagi
+                                        </motion.button>
                                     </div>
-                                </div>
-                            </div>
+                                )}
+                            </>
                         ) : (
                             <div className={styles.resultError}>
                                 <div className={styles.errorIcon}>
@@ -449,16 +794,16 @@ export default function ScanPage() {
                                 </div>
                                 <h2>Gagal!</h2>
                                 <p>{result.pesan}</p>
+                                <motion.button
+                                    className="btn btn-primary btn-lg w-full mt-4"
+                                    onClick={resetScan}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    Scan Lagi
+                                </motion.button>
                             </div>
                         )}
-                        <motion.button
-                            className="btn btn-primary btn-lg w-full mt-4"
-                            onClick={resetScan}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            Scan Lagi
-                        </motion.button>
                     </motion.div>
                 )}
             </AnimatePresence>

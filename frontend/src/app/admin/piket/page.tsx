@@ -34,6 +34,14 @@ interface KehadiranItem {
     hadir: boolean;
     sudah_lewat: boolean;
     kehadiran_id: number | null;
+    ada_bukti: boolean;
+}
+
+interface BuktiItem {
+    id: number;
+    tipe: string;
+    url: string;
+    dibuat_pada: string;
 }
 
 interface RekapKehadiran {
@@ -80,6 +88,11 @@ export default function PiketPage() {
     const [kehadiranData, setKehadiranData] = useState<{ bulan: number; tahun: number; rekap: RekapKehadiran[] } | null>(null);
     const [selectedBulan, setSelectedBulan] = useState(new Date().getMonth() + 1);
     const [selectedTahun, setSelectedTahun] = useState(new Date().getFullYear());
+
+    // Bukti piket viewer
+    const [showBuktiModal, setShowBuktiModal] = useState(false);
+    const [buktiPhotos, setBuktiPhotos] = useState<BuktiItem[]>([]);
+    const [buktiLoading, setBuktiLoading] = useState(false);
 
     const fetchJadwal = async () => {
         setLoading(true);
@@ -184,6 +197,22 @@ export default function PiketPage() {
             fetchKehadiran();
         } catch (error: any) {
             alert(error.message || 'Gagal mengubah kehadiran');
+        }
+    };
+
+    // View bukti piket photos
+    const handleViewBukti = async (kehadiranId: number) => {
+        setBuktiLoading(true);
+        setShowBuktiModal(true);
+        try {
+            const res = await api.getBuktiPiket(kehadiranId);
+            if (res.sukses) {
+                setBuktiPhotos(res.data as BuktiItem[]);
+            }
+        } catch (error) {
+            console.error('Error fetching bukti:', error);
+        } finally {
+            setBuktiLoading(false);
         }
     };
 
@@ -393,19 +422,30 @@ export default function PiketPage() {
                                                             return (
                                                                 <td key={minggu} className={styles.statusCell}>
                                                                     {kehadiran ? (
-                                                                        <button
-                                                                            className={styles.statusBtn}
-                                                                            onClick={() => handleToggleKehadiran(r.jadwal_id, kehadiran.tanggal, kehadiran.hadir)}
-                                                                            title={`${kehadiran.tanggal} - Klik untuk ${kehadiran.hadir ? 'hapus' : 'tambah'} kehadiran`}
-                                                                        >
-                                                                            {kehadiran.hadir ? (
-                                                                                <span className={styles.hadir}>✓</span>
-                                                                            ) : kehadiran.sudah_lewat ? (
-                                                                                <span className={styles.absen}>✗</span>
-                                                                            ) : (
-                                                                                <span className={styles.belum}>-</span>
+                                                                        <>
+                                                                            <button
+                                                                                className={styles.statusBtn}
+                                                                                onClick={() => handleToggleKehadiran(r.jadwal_id, kehadiran.tanggal, kehadiran.hadir)}
+                                                                                title={`${kehadiran.tanggal} - Klik untuk ${kehadiran.hadir ? 'hapus' : 'tambah'} kehadiran`}
+                                                                            >
+                                                                                {kehadiran.hadir ? (
+                                                                                    <span className={styles.hadir}>✓</span>
+                                                                                ) : kehadiran.sudah_lewat ? (
+                                                                                    <span className={styles.absen}>✗</span>
+                                                                                ) : (
+                                                                                    <span className={styles.belum}>-</span>
+                                                                                )}
+                                                                            </button>
+                                                                            {kehadiran.ada_bukti && kehadiran.kehadiran_id && (
+                                                                                <button
+                                                                                    className={styles.buktiBtn}
+                                                                                    onClick={() => handleViewBukti(kehadiran.kehadiran_id!)}
+                                                                                    title="Lihat bukti foto"
+                                                                                >
+                                                                                    📷 Bukti
+                                                                                </button>
                                                                             )}
-                                                                        </button>
+                                                                        </>
                                                                     ) : (
                                                                         <span className={styles.noData}>-</span>
                                                                     )}
@@ -599,6 +639,65 @@ export default function PiketPage() {
                 )
                 }
             </AnimatePresence >
+
+            {/* Bukti Piket Modal */}
+            <AnimatePresence>
+                {showBuktiModal && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="modal"
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.9 }}
+                            style={{ maxWidth: '600px' }}
+                        >
+                            <div className="modal-header">
+                                <h3>📷 Bukti Foto Piket</h3>
+                            </div>
+                            <div className="modal-body">
+                                {buktiLoading ? (
+                                    <div style={{ textAlign: 'center', padding: '2rem' }}>
+                                        <div className="loader"></div>
+                                    </div>
+                                ) : buktiPhotos.length > 0 ? (
+                                    <div className={styles.buktiGroups}>
+                                        {(['selfie', 'sekre_sebelum', 'sekre_sesudah'] as const).map(tipe => {
+                                            const filtered = buktiPhotos.filter(b => b.tipe === tipe);
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <div key={tipe} className={styles.buktiGroup}>
+                                                    <h4>
+                                                        {tipe === 'selfie' && '📸 Selfie'}
+                                                        {tipe === 'sekre_sebelum' && '🏢 Sekre (Sebelum)'}
+                                                        {tipe === 'sekre_sesudah' && '✨ Sekre (Sesudah)'}
+                                                    </h4>
+                                                    <div className={styles.buktiPhotoGrid}>
+                                                        {filtered.map(b => (
+                                                            <a key={b.id} href={b.url} target="_blank" rel="noopener noreferrer" className={styles.buktiPhoto}>
+                                                                <img src={b.url} alt={tipe} />
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p style={{ textAlign: 'center', color: 'var(--abu-500)' }}>Tidak ada bukti foto</p>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => { setShowBuktiModal(false); setBuktiPhotos([]); }}>Tutup</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div >
     );
 }

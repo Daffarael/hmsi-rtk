@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
+import Link from 'next/link';
 import api from '@/lib/api';
 import styles from './kegiatan.module.css';
 
@@ -20,30 +21,11 @@ interface Kegiatan {
     jumlah_hadir: number;
 }
 
-interface Pengguna {
-    id: number;
-    nama_lengkap: string;
-    nama_panggilan: string;
-    tipe_anggota: 'presidium' | 'staff';
-    divisi?: { id: number; nama: string };
-}
-
-interface Kehadiran {
-    id: number;
-    waktu_scan: string;
-    pengguna: Pengguna;
-}
-
 export default function KegiatanPage() {
     const [kegiatan, setKegiatan] = useState<Kegiatan[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [showQRModal, setShowQRModal] = useState(false);
-    const [showKehadiranModal, setShowKehadiranModal] = useState(false);
     const [editData, setEditData] = useState<Kegiatan | null>(null);
-    const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
-    const [kehadiranList, setKehadiranList] = useState<Kehadiran[]>([]);
-    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const [formData, setFormData] = useState({
         nama: '',
@@ -54,6 +36,11 @@ export default function KegiatanPage() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+
+    // Publikasi modal
+    const [showPublishModal, setShowPublishModal] = useState(false);
+    const [publishKegiatan, setPublishKegiatan] = useState<Kegiatan | null>(null);
+    const [durasiMenit, setDurasiMenit] = useState('120');
 
     const fetchKegiatan = async () => {
         try {
@@ -126,43 +113,30 @@ export default function KegiatanPage() {
         }
     };
 
-    const handlePublish = async (id: number) => {
+    const handlePublish = async () => {
+        if (!publishKegiatan) return;
         try {
-            await api.publikasikanKegiatan(id, 120); // 2 jam
+            await api.publikasikanKegiatan(publishKegiatan.id, parseInt(durasiMenit) || undefined);
+            setShowPublishModal(false);
             fetchKegiatan();
         } catch (err: any) {
-            alert(err.message || 'Gagal mempublikasikan');
+            alert(err.message || 'Gagal publikasi');
         }
     };
 
-    const openQRModal = (data: Kegiatan) => {
-        setSelectedKegiatan(data);
-        setShowQRModal(true);
-    };
-
-    const openKehadiranModal = async (data: Kegiatan) => {
-        setSelectedKegiatan(data);
+    const handleUnpublish = async (id: number) => {
+        if (!confirm('Batalkan publikasi QR?')) return;
         try {
-            const res = await api.kehadiranKegiatan(data.id);
-            setKehadiranList((res.data as Kehadiran[]) || []);
-            setShowKehadiranModal(true);
+            await api.batalkanPublikasiKegiatan(id);
+            fetchKegiatan();
         } catch (err: any) {
-            alert(err.message || 'Gagal memuat kehadiran');
+            alert(err.message || 'Gagal batalkan publikasi');
         }
     };
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('id-ID', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
-
-    const formatTime = (timeStr: string | null) => {
-        if (!timeStr) return '-';
-        return timeStr.slice(0, 5);
+    const isExpired = (kadaluarsaPada: string | null) => {
+        if (!kadaluarsaPada) return false;
+        return new Date(kadaluarsaPada) < new Date();
     };
 
     return (
@@ -197,92 +171,83 @@ export default function KegiatanPage() {
                     <div className="loader"></div>
                 </div>
             ) : kegiatan.length > 0 ? (
-                <div className={styles.grid}>
+                <div className={styles.kegiatanGrid}>
                     {kegiatan.map((k, index) => (
                         <motion.div
                             key={k.id}
-                            className={styles.card}
+                            className={styles.kegiatanCard}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                         >
                             <div className={styles.cardHeader}>
-                                <h3>{k.nama}</h3>
-                                <span className={`${styles.status} ${k.dipublikasikan ? styles.published : styles.draft}`}>
-                                    {k.dipublikasikan ? 'Aktif' : 'Draft'}
-                                </span>
+                                <div className={styles.kegiatanDate}>
+                                    <span className={styles.day}>{new Date(k.tanggal_kegiatan).getDate()}</span>
+                                    <span className={styles.month}>
+                                        {new Date(k.tanggal_kegiatan).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
+                                    </span>
+                                </div>
+                                <div className={styles.kegiatanStatus}>
+                                    {k.dipublikasikan ? (
+                                        isExpired(k.kadaluarsa_pada) ? (
+                                            <span className="badge badge-danger">Kadaluarsa</span>
+                                        ) : (
+                                            <span className="badge badge-success">Aktif</span>
+                                        )
+                                    ) : (
+                                        <span className="badge badge-warning">Draft</span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className={styles.cardBody}>
-                                <div className={styles.info}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                        <line x1="16" y1="2" x2="16" y2="6" />
-                                        <line x1="8" y1="2" x2="8" y2="6" />
-                                        <line x1="3" y1="10" x2="21" y2="10" />
-                                    </svg>
-                                    <span>{formatDate(k.tanggal_kegiatan)}</span>
-                                </div>
-                                {k.waktu_kegiatan && (
-                                    <div className={styles.info}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <circle cx="12" cy="12" r="10" />
-                                            <polyline points="12 6 12 12 16 14" />
-                                        </svg>
-                                        <span>{formatTime(k.waktu_kegiatan)}</span>
-                                    </div>
-                                )}
+                                <h3 className={styles.kegiatanNama}>{k.nama}</h3>
                                 {k.lokasi && (
-                                    <div className={styles.info}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <p className={styles.kegiatanLokasi}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                             <circle cx="12" cy="10" r="3" />
                                         </svg>
-                                        <span>{k.lokasi}</span>
-                                    </div>
+                                        {k.lokasi}
+                                    </p>
                                 )}
-                                <div className={styles.info}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                    </svg>
-                                    <span>{k.jumlah_hadir} hadir</span>
+                                <div className={styles.kegiatanStats}>
+                                    <span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                        </svg>
+                                        {k.jumlah_hadir} hadir
+                                    </span>
                                 </div>
                             </div>
 
-                            <div className={styles.cardActions}>
-                                {!k.dipublikasikan && (
-                                    <button className={`${styles.actionBtn} ${styles.publishBtn}`} onClick={() => handlePublish(k.id)} title="Publikasikan">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                            <polyline points="22 4 12 14.01 9 11.01" />
-                                        </svg>
+                            <div className={styles.cardFooter}>
+                                {!k.dipublikasikan || isExpired(k.kadaluarsa_pada) ? (
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => { setPublishKegiatan(k); setShowPublishModal(true); }}
+                                    >
+                                        Publikasi QR
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        onClick={() => handleUnpublish(k.id)}
+                                    >
+                                        Batalkan
                                     </button>
                                 )}
-                                <button className={styles.actionBtn} onClick={() => openQRModal(k)} title="Lihat QR">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <rect x="3" y="3" width="7" height="7" />
-                                        <rect x="14" y="3" width="7" height="7" />
-                                        <rect x="14" y="14" width="7" height="7" />
-                                        <rect x="3" y="14" width="7" height="7" />
-                                    </svg>
-                                </button>
-                                <button className={styles.actionBtn} onClick={() => openKehadiranModal(k)} title="Lihat Kehadiran">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <line x1="17" y1="11" x2="23" y2="11" />
-                                    </svg>
-                                </button>
-                                <button className={styles.actionBtn} onClick={() => openEditModal(k)} title="Edit">
+                                <Link href={`/admin/kegiatan/${k.id}`} className="btn btn-secondary btn-sm">
+                                    Detail
+                                </Link>
+                                <button className={styles.moreBtn} onClick={() => openEditModal(k)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                     </svg>
                                 </button>
-                                <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleDelete(k.id, k.nama)} title="Hapus">
+                                <button className={`${styles.moreBtn} ${styles.deleteBtn}`} onClick={() => handleDelete(k.id, k.nama)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <polyline points="3 6 5 6 21 6" />
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -380,86 +345,28 @@ export default function KegiatanPage() {
                 )}
             </AnimatePresence>
 
-            {/* QR Modal */}
+            {/* Publish Modal */}
             <AnimatePresence>
-                {showQRModal && selectedKegiatan && (
-                    <motion.div
-                        className={`modal-overlay ${isFullscreen ? styles.fullscreenOverlay : ''}`}
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    >
-                        <motion.div
-                            className={`modal ${isFullscreen ? styles.fullscreenModal : ''}`}
-                            initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                        >
-                            <div className="modal-header">
-                                <h3>QR Kegiatan: {selectedKegiatan.nama}</h3>
-                            </div>
-                            <div className="modal-body" style={{ textAlign: 'center', padding: '2rem' }}>
-                                <QRCodeSVG
-                                    value={selectedKegiatan.kode_qr}
-                                    size={isFullscreen ? 400 : 250}
-                                    level="H"
-                                    includeMargin
-                                />
-                                <p style={{ marginTop: '1rem', color: 'var(--abu-500)', fontSize: '0.875rem' }}>
-                                    Scan QR untuk mencatat kehadiran
-                                </p>
-                            </div>
-                            <div className="modal-footer">
-                                {!isFullscreen && (
-                                    <button className="btn btn-primary" onClick={() => setIsFullscreen(true)}>Fullscreen</button>
-                                )}
-                                <button className="btn btn-secondary" onClick={() => { setShowQRModal(false); setIsFullscreen(false); }}>
-                                    {isFullscreen ? 'Keluar' : 'Tutup'}
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Kehadiran Modal */}
-            <AnimatePresence>
-                {showKehadiranModal && selectedKegiatan && (
+                {showPublishModal && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="modal" style={{ maxWidth: '600px' }} initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
+                        <motion.div className="modal" initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
                             <div className="modal-header">
-                                <h3>Kehadiran: {selectedKegiatan.nama}</h3>
+                                <h3>Publikasi QR Code</h3>
                             </div>
                             <div className="modal-body">
-                                {kehadiranList.length > 0 ? (
-                                    <div className="table-container">
-                                        <table className="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama</th>
-                                                    <th>Tipe</th>
-                                                    <th>Waktu Scan</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {kehadiranList.map((h, i) => (
-                                                    <tr key={h.id}>
-                                                        <td>{i + 1}</td>
-                                                        <td>{h.pengguna.nama_panggilan}</td>
-                                                        <td>
-                                                            <span className={`${styles.tipeBadge} ${h.pengguna.tipe_anggota === 'presidium' ? styles.presidium : styles.staff}`}>
-                                                                {h.pengguna.tipe_anggota === 'presidium' ? 'Presidium' : 'Staff'}
-                                                            </span>
-                                                        </td>
-                                                        <td>{new Date(h.waktu_scan).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ) : (
-                                    <p style={{ textAlign: 'center', color: 'var(--abu-500)' }}>Belum ada yang hadir</p>
-                                )}
+                                <p style={{ marginBottom: '1rem' }}>Publikasi QR untuk kegiatan <strong>{publishKegiatan?.nama}</strong></p>
+                                <div className="input-group">
+                                    <label className="input-label">Durasi Aktif (menit)</label>
+                                    <input type="number" className="input-field" value={durasiMenit}
+                                        onChange={(e) => setDurasiMenit(e.target.value)} placeholder="Kosongkan untuk tanpa batas" />
+                                    <small style={{ color: 'var(--abu-500)', fontSize: '0.75rem' }}>
+                                        Kosongkan jika tidak ingin ada batas waktu
+                                    </small>
+                                </div>
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => setShowKehadiranModal(false)}>Tutup</button>
+                                <button className="btn btn-secondary" onClick={() => setShowPublishModal(false)}>Batal</button>
+                                <button className="btn btn-primary" onClick={handlePublish}>Publikasi</button>
                             </div>
                         </motion.div>
                     </motion.div>

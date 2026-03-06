@@ -183,3 +183,99 @@
 .emptyState p {
     color: var(--abu-500);
 }
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--putih);
+    padding: 0.375rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+}
+
+.tab {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--abu-500);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.tab:hover {
+    color: var(--utama-500);
+    background: rgba(249, 115, 22, 0.05);
+}
+
+.tab.active {
+    background: linear-gradient(135deg, var(--utama-500), var(--utama-600));
+    color: white;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+/* Stats Row */
+.statsRow {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.miniStat {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.miniNumber {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.buktiBadge {
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+@media (max-width: 480px) {
+    .statsRow {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .statItem {
+        width: 100%;
+    }
+
+    .progressRing {
+        width: 50px;
+        height: 50px;
+    }
+
+    .miniStat {
+        width: 40px;
+        height: 40px;
+    }
+
+    .miniNumber {
+        font-size: 1rem;
+    }
+}

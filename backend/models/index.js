@@ -12,6 +12,7 @@ const QRPiket = require('./QRPiket');
 const Kegiatan = require('./Kegiatan');
 const KehadiranKegiatan = require('./KehadiranKegiatan');
 const OfTheMonth = require('./OfTheMonth');
+const BuktiPiket = require('./BuktiPiket');
 
 // ==================== ASOSIASI ====================
 
@@ -61,6 +62,10 @@ JadwalPiket.belongsTo(Pengguna, { foreignKey: 'pengguna_id', as: 'pengguna' });
 JadwalPiket.hasMany(KehadiranPiket, { foreignKey: 'jadwal_piket_id', as: 'kehadiran_piket' });
 KehadiranPiket.belongsTo(JadwalPiket, { foreignKey: 'jadwal_piket_id', as: 'jadwal_piket' });
 
+// KehadiranPiket -> BuktiPiket (1:N)
+KehadiranPiket.hasMany(BuktiPiket, { foreignKey: 'kehadiran_piket_id', as: 'bukti_piket' });
+BuktiPiket.belongsTo(KehadiranPiket, { foreignKey: 'kehadiran_piket_id', as: 'kehadiran_piket' });
+
 // Periode -> QRPiket (1:1)
 Periode.hasOne(QRPiket, { foreignKey: 'periode_id', as: 'qr_piket' });
 QRPiket.belongsTo(Periode, { foreignKey: 'periode_id', as: 'periode' });
@@ -103,5 +108,6 @@ module.exports = {
     QRPiket,
     Kegiatan,
     KehadiranKegiatan,
-    OfTheMonth
+    OfTheMonth,
+    BuktiPiket
 };

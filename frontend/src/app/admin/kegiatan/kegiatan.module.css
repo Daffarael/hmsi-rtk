@@ -34,15 +34,15 @@
     min-height: 300px;
 }
 
-/* Grid Layout */
-.grid {
+/* Kegiatan Grid - Same as Rapat */
+.kegiatanGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
 }
 
 /* Ultra Premium Card - Same as Rapat */
-.card {
+.kegiatanCard {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border-radius: var(--radius-xl);
@@ -55,7 +55,7 @@
 }
 
 /* Premium Shimmer Effect */
-.card::before {
+.kegiatanCard::before {
     content: '';
     position: absolute;
     top: 0;
@@ -74,7 +74,7 @@
 }
 
 /* Glow Border Effect - Orange */
-.card::after {
+.kegiatanCard::after {
     content: '';
     position: absolute;
     inset: -3px;
@@ -86,15 +86,15 @@
     filter: blur(12px);
 }
 
-.card:hover::before {
+.kegiatanCard:hover::before {
     left: 100%;
 }
 
-.card:hover::after {
+.kegiatanCard:hover::after {
     opacity: 0.5;
 }
 
-.card:hover {
+.kegiatanCard:hover {
     box-shadow:
         0 30px 60px -15px rgba(249, 115, 22, 0.25),
         0 0 0 1px rgba(249, 115, 22, 0.15);
@@ -102,131 +102,269 @@
     border-color: rgba(249, 115, 22, 0.2);
 }
 
-/* Card Header */
+/* Premium Card Header */
 .cardHeader {
     padding: 1.25rem 1.5rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid rgba(249, 115, 22, 0.08);
     background: linear-gradient(135deg, rgba(255, 247, 237, 0.6), transparent);
     position: relative;
     z-index: 2;
-    gap: 1rem;
 }
 
-.cardHeader h3 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--abu-900);
-    line-height: 1.4;
-    transition: color 0.3s ease;
-}
-
-.card:hover .cardHeader h3 {
-    color: var(--oranye-600);
-}
-
-.status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.published {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.1));
-    color: var(--sukses);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-}
-
-.draft {
-    background: rgba(100, 116, 139, 0.1);
-    color: var(--abu-500);
-    border: 1px solid rgba(100, 116, 139, 0.1);
-}
-
-.cardBody {
-    padding: 1.25rem 1.5rem;
+.kegiatanDate {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
     position: relative;
-    z-index: 2;
 }
 
-.info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--abu-600);
-    font-size: 0.875rem;
-    transition: all 0.3s ease;
+/* Animated Date */
+.day {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--utama-500);
+    line-height: 1;
+    transition: all 0.4s ease;
 }
 
-.info svg {
-    color: var(--oranye-400);
-    flex-shrink: 0;
-    transition: transform 0.3s ease;
-}
-
-.card:hover .info svg {
+.kegiatanCard:hover .day {
+    color: var(--utama-600);
     transform: scale(1.1);
 }
 
-.card:hover .info {
+.month {
+    font-size: 0.8125rem;
+    color: var(--abu-500);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+}
+
+.kegiatanCard:hover .month {
+    color: var(--utama-500);
+    letter-spacing: 0.08em;
+}
+
+/* Premium Card Body */
+.cardBody {
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.kegiatanNama {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--abu-900);
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.kegiatanCard:hover .kegiatanNama {
+    background: linear-gradient(90deg, var(--utama-500), var(--utama-600), var(--utama-500));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerTitle 2s ease-in-out infinite;
+}
+
+@keyframes shimmerTitle {
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: -100% 50%;
+    }
+}
+
+.kegiatanLokasi {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--abu-500);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.kegiatanLokasi svg {
+    transition: all 0.4s ease;
+}
+
+.kegiatanCard:hover .kegiatanLokasi svg {
+    color: var(--utama-500);
+    animation: bounceIcon 0.8s ease-in-out infinite;
+}
+
+@keyframes bounceIcon {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.kegiatanStats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.kegiatanStats span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--abu-600);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.kegiatanStats span svg {
+    transition: all 0.4s ease;
+}
+
+.kegiatanCard:hover .kegiatanStats span svg {
+    color: var(--utama-500);
+    animation: bounceIcon 0.8s ease-in-out infinite;
+}
+
+.kegiatanCard:hover .kegiatanStats span {
     color: var(--abu-700);
 }
 
-.cardActions {
+/* Premium Card Footer - Same as Rapat */
+.cardFooter {
     padding: 1rem 1.5rem;
-    border-top: 1px solid rgba(249, 115, 22, 0.08);
+    background: linear-gradient(135deg, var(--abu-50), rgba(255, 255, 255, 0.8));
     display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    background: rgba(255, 247, 237, 0.3);
+    gap: 0.75rem;
+    align-items: center;
     position: relative;
     z-index: 2;
+    border-top: 1px solid rgba(249, 115, 22, 0.05);
 }
 
-.actionBtn {
-    width: 36px;
-    height: 36px;
+/* Premium Styling for all buttons in footer */
+.cardFooter :global(.btn) {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Shimmer effect on buttons */
+.cardFooter :global(.btn)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent);
+    transition: left 0.5s ease;
+}
+
+.cardFooter :global(.btn):hover::after {
+    left: 100%;
+}
+
+.cardFooter :global(.btn):hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.15);
+}
+
+/* Primary button special glow */
+.cardFooter :global(.btn-primary):hover {
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+}
+
+/* Secondary button (Detail) enhancement */
+.cardFooter :global(.btn-secondary):hover {
+    background: linear-gradient(135deg, var(--abu-100), white);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.moreBtn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-lg);
     border: none;
-    border-radius: var(--radius-md);
-    background: var(--abu-50);
+    background: rgba(255, 255, 255, 0.9);
     color: var(--abu-600);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-left: auto;
+    position: relative;
+    overflow: hidden;
 }
 
-.actionBtn:hover {
-    background: var(--oranye-50);
-    color: var(--oranye-500);
+.moreBtn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(249, 115, 22, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.moreBtn:first-of-type {
+    margin-left: auto;
+}
+
+.moreBtn:hover::before {
+    opacity: 1;
+}
+
+.moreBtn:hover {
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
+    color: var(--utama-600);
     transform: translateY(-3px) scale(1.1);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.2);
 }
 
-.publishBtn {
-    background: rgba(34, 197, 94, 0.1);
-    color: var(--sukses);
+.moreBtn:hover svg {
+    animation: bounceBtn 0.8s ease-in-out infinite;
 }
 
-.publishBtn:hover {
-    background: rgba(34, 197, 94, 0.2);
-    color: var(--sukses);
+@keyframes bounceBtn {
+
+    0%,
+    100% {
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        transform: scale(1.1) translateY(-2px);
+    }
 }
 
 .deleteBtn:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: linear-gradient(135deg, var(--gagal-light), rgba(239, 68, 68, 0.08));
     color: var(--gagal);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
 }
 
-/* Empty State - Same as Rapat */
+.deleteBtn:hover::before {
+    background: radial-gradient(circle at center, rgba(239, 68, 68, 0.2), transparent);
+}
+
+/* Empty State Premium */
 .emptyState {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -267,51 +405,9 @@
     font-size: 0.9375rem;
 }
 
-/* Fullscreen Modal */
-.fullscreenOverlay {
-    background: rgba(0, 0, 0, 0.95) !important;
-}
-
-.fullscreenModal {
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Tipe Badge */
-.tipeBadge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.2rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.presidium {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.1));
-    color: var(--oranye-600);
-}
-
-.staff {
-    background: rgba(100, 116, 139, 0.1);
-    color: var(--abu-600);
-}
-
-/* Responsive */
 @media (max-width: 768px) {
     .header {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .grid {
-        grid-template-columns: 1fr;
     }
 }

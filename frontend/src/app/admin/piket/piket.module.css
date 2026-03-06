@@ -392,6 +392,13 @@
     vertical-align: middle;
 }
 
+.statusCell>* {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
 .statusBtn {
     background: none;
     border: none;
@@ -648,4 +655,68 @@
 
 .btnDanger:hover {
     background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+
+/* Bukti Piket */
+.buktiBtn {
+    background: var(--abu-100);
+    border: 1px solid var(--abu-200);
+    cursor: pointer;
+    font-size: 0.625rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--abu-600);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+}
+
+.buktiBtn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #2563eb;
+}
+
+.buktiGroups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.buktiGroup h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--abu-800);
+}
+
+.buktiPhotoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.buktiPhoto {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 2px solid var(--abu-200);
+    transition: all 0.3s ease;
+}
+
+.buktiPhoto:hover {
+    border-color: var(--utama-400);
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.buktiPhoto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

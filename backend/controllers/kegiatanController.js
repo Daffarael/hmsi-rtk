@@ -180,6 +180,29 @@ exports.publikasikan = async (req, res) => {
     }
 };
 
+// POST /api/kegiatan/:id/batalkan-publikasi - Batalkan publikasi kegiatan
+exports.batalkanPublikasi = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const kegiatan = await Kegiatan.findByPk(id);
+        if (!kegiatan) {
+            return res.status(404).json({ sukses: false, pesan: 'Kegiatan tidak ditemukan' });
+        }
+
+        await kegiatan.update({
+            dipublikasikan: false,
+            dipublikasikan_pada: null,
+            kadaluarsa_pada: null
+        });
+
+        res.json({ sukses: true, pesan: 'Publikasi kegiatan berhasil dibatalkan', data: kegiatan });
+    } catch (error) {
+        console.error('Error batalkanPublikasi:', error);
+        res.status(500).json({ sukses: false, pesan: 'Gagal membatalkan publikasi kegiatan' });
+    }
+};
+
 // ==================== ANGGOTA: SCAN KEGIATAN ====================
 
 // GET /api/kegiatan-aktif - Ambil kegiatan yang dipublikasikan

@@ -1,11 +1,57 @@
 const { Op } = require('sequelize');
-const { JadwalPiket, KehadiranPiket, QRPiket, Pengguna, Periode, Divisi } = require('../models');
+const { JadwalPiket, KehadiranPiket, QRPiket, Pengguna, Periode, Divisi, BuktiPiket } = require('../models');
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Multer storage config for piket photos
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const now = new Date();
+        const dir = path.join(__dirname, '..', 'uploads', 'piket', `${now.getFullYear()}`, `${String(now.getMonth() + 1).padStart(2, '0')}`);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+        const ext = path.extname(file.originalname) || '.jpg';
+        cb(null, `piket-${uniqueSuffix}${ext}`);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    fileFilter: (req, file, cb) => {
+        const allowed = /jpeg|jpg|png|webp/;
+        const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+        const mime = allowed.test(file.mimetype);
+        if (ext && mime) {
+            cb(null, true);
+        } else {
+            cb(new Error('Hanya file gambar (jpg, png, webp) yang diizinkan'));
+        }
+    }
+});
+
+exports.uploadMiddleware = upload.array('foto', 10); // max 10 photos
 
 // Helper: Get nama hari dari tanggal
 const getNamaHari = (date) => {
     const hari = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
     return hari[new Date(date).getDay()];
+};
+
+// Helper: Format date to YYYY-MM-DD in LOCAL timezone (NOT UTC)
+const formatLocalDate = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 // Helper: Get kemunculan ke-berapa hari tersebut dalam bulan
@@ -207,7 +253,12 @@ exports.getKehadiranPiket = async (req, res) => {
                 {
                     model: KehadiranPiket,
                     as: 'kehadiran_piket',
-                    required: false
+                    required: false,
+                    include: [{
+                        model: BuktiPiket,
+                        as: 'bukti_piket',
+                        attributes: ['id']
+                    }]
                 }
             ]
         });
@@ -227,7 +278,7 @@ exports.getKehadiranPiket = async (req, res) => {
             while (current <= lastDay) {
                 const dayOfWeek = current.getDay();
                 if (dayOfWeek === hariMap[jadwal.hari]) {
-                    const tanggalStr = current.toISOString().split('T')[0];
+                    const tanggalStr = formatLocalDate(current);
                     const kehadiranRecord = jadwal.kehadiran_piket.find(k => k.tanggal === tanggalStr);
                     const sudahLewat = current < today;
 
@@ -236,7 +287,8 @@ exports.getKehadiranPiket = async (req, res) => {
                         minggu_ke: getMingguKe(current),
                         hadir: !!kehadiranRecord,
                         sudah_lewat: sudahLewat,
-                        kehadiran_id: kehadiranRecord?.id || null
+                        kehadiran_id: kehadiranRecord?.id || null,
+                        ada_bukti: kehadiranRecord?.bukti_piket?.length > 0 || false
                     });
                 }
                 current.setDate(current.getDate() + 1);
@@ -374,7 +426,7 @@ exports.scanPiket = async (req, res) => {
         // Cek hari ini
         const today = new Date();
         const hariIni = getNamaHari(today);
-        const tanggalIni = today.toISOString().split('T')[0];
+        const tanggalIni = formatLocalDate(today);
 
         // Cek apakah hari ini adalah hari kerja (senin-jumat)
         if (!['senin', 'selasa', 'rabu', 'kamis', 'jumat'].includes(hariIni)) {
@@ -421,6 +473,7 @@ exports.scanPiket = async (req, res) => {
             sukses: true,
             pesan: 'Absensi piket berhasil dicatat!',
             data: {
+                kehadiran_piket_id: kehadiran.id,
                 hari: hariIni,
                 tanggal: tanggalIni,
                 waktu_scan: kehadiran.waktu_scan
@@ -539,5 +592,98 @@ exports.anggotaTersedia = async (req, res) => {
     } catch (error) {
         console.error('Error anggotaTersedia:', error);
         res.status(500).json({ sukses: false, pesan: 'Gagal mengambil daftar anggota' });
+    }
+};
+
+// ==================== BUKTI PIKET ====================
+
+// POST /api/piket/bukti/:kehadiran_piket_id - Upload bukti foto piket
+exports.uploadBuktiPiket = async (req, res) => {
+    try {
+        const { kehadiran_piket_id } = req.params;
+        const tipeList = req.body.tipe; // array of tipe per file, e.g. ['selfie','sekre_sebelum','sekre_sesudah']
+
+        // Validasi kehadiran exists and belongs to this user
+        const kehadiran = await KehadiranPiket.findByPk(kehadiran_piket_id, {
+            include: [{ model: JadwalPiket, as: 'jadwal_piket' }]
+        });
+
+        if (!kehadiran) {
+            return res.status(404).json({ sukses: false, pesan: 'Data kehadiran tidak ditemukan' });
+        }
+
+        if (kehadiran.jadwal_piket.pengguna_id !== req.pengguna.id) {
+            return res.status(403).json({ sukses: false, pesan: 'Anda tidak memiliki akses' });
+        }
+
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ sukses: false, pesan: 'Tidak ada file yang diupload' });
+        }
+
+        // Parse tipe list (could be string or array)
+        const tipeArr = Array.isArray(tipeList) ? tipeList : [tipeList];
+
+        // Validate: must have at least 1 selfie
+        if (!tipeArr.includes('selfie')) {
+            return res.status(400).json({ sukses: false, pesan: 'Foto selfie wajib diupload' });
+        }
+
+        // Save records
+        const buktiRecords = [];
+        for (let i = 0; i < req.files.length; i++) {
+            const file = req.files[i];
+            const tipe = tipeArr[i] || 'sekre_sesudah';
+
+            // Store relative path from uploads dir
+            const relativePath = path.relative(
+                path.join(__dirname, '..', 'uploads'),
+                file.path
+            ).replace(/\\/g, '/');
+
+            const bukti = await BuktiPiket.create({
+                kehadiran_piket_id: parseInt(kehadiran_piket_id),
+                tipe,
+                file_path: relativePath
+            });
+            buktiRecords.push(bukti);
+        }
+
+        res.status(201).json({
+            sukses: true,
+            pesan: 'Bukti piket berhasil diupload',
+            data: buktiRecords
+        });
+    } catch (error) {
+        console.error('Error uploadBuktiPiket:', error);
+        res.status(500).json({ sukses: false, pesan: 'Gagal mengupload bukti piket' });
+    }
+};
+
+// GET /api/piket/bukti/:kehadiran_piket_id - Get bukti foto piket
+exports.getBuktiPiket = async (req, res) => {
+    try {
+        const { kehadiran_piket_id } = req.params;
+
+        const buktiList = await BuktiPiket.findAll({
+            where: { kehadiran_piket_id: parseInt(kehadiran_piket_id) },
+            order: [['dibuat_pada', 'ASC']]
+        });
+
+        // Add full URL to each bukti
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const data = buktiList.map(b => ({
+            id: b.id,
+            tipe: b.tipe,
+            url: `${baseUrl}/uploads/${b.file_path}`,
+            dibuat_pada: b.dibuat_pada
+        }));
+
+        res.json({
+            sukses: true,
+            data
+        });
+    } catch (error) {
+        console.error('Error getBuktiPiket:', error);
+        res.status(500).json({ sukses: false, pesan: 'Gagal mengambil bukti piket' });
     }
 };

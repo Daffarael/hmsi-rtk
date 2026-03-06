@@ -82,6 +82,10 @@ router.get('/piket/anggota-tersedia', verifikasiToken, hanyaAdmin, cekMasaJabata
 router.post('/piket/scan', verifikasiToken, hanyaAnggota, piketController.scanPiket);
 router.get('/piket/jadwal-saya', verifikasiToken, hanyaAnggota, piketController.jadwalSaya);
 
+// Bukti piket (anggota upload, admin + anggota view)
+router.post('/piket/bukti/:kehadiran_piket_id', verifikasiToken, hanyaAnggota, piketController.uploadMiddleware, piketController.uploadBuktiPiket);
+router.get('/piket/bukti/:kehadiran_piket_id', verifikasiToken, piketController.getBuktiPiket);
+
 // ==================== KEGIATAN ====================
 // Admin routes
 router.get('/kegiatan', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanController.semuaKegiatan);
@@ -90,6 +94,7 @@ router.post('/kegiatan', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanCo
 router.put('/kegiatan/:id', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanController.editKegiatan);
 router.delete('/kegiatan/:id', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanController.hapusKegiatan);
 router.post('/kegiatan/:id/publikasi', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanController.publikasikan);
+router.post('/kegiatan/:id/batalkan-publikasi', verifikasiToken, hanyaAdmin, cekMasaJabatan, kegiatanController.batalkanPublikasi);
 
 // Anggota routes
 router.get('/kegiatan-aktif', verifikasiToken, hanyaAnggota, kegiatanController.kegiatanAktif);

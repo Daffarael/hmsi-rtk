@@ -295,7 +295,7 @@ class ApiClient {
 
     // Anggota: Scan piket QR
     async scanPiket(kode_qr: string) {
-        return this.request('/piket/scan', {
+        return this.request<{ kehadiran_piket_id?: number; hari?: string }>('/piket/scan', {
             method: 'POST',
             body: JSON.stringify({ kode_qr }),
         });
@@ -304,6 +304,33 @@ class ApiClient {
     // Anggota: Get jadwal saya
     async jadwalSaya() {
         return this.request('/piket/jadwal-saya');
+    }
+
+    // Anggota: Upload bukti piket (uses FormData, no JSON content-type)
+    async uploadBuktiPiket(kehadiranPiketId: number, files: File[], tipeList: string[]) {
+        const token = this.getToken();
+        const formData = new FormData();
+        files.forEach((file, i) => {
+            formData.append('foto', file);
+            formData.append('tipe', tipeList[i]);
+        });
+
+        const response = await fetch(`${API_URL}/piket/bukti/${kehadiranPiketId}`, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.pesan || 'Gagal mengupload bukti piket');
+        }
+        return data;
+    }
+
+    // Get bukti piket
+    async getBuktiPiket(kehadiranPiketId: number) {
+        return this.request(`/piket/bukti/${kehadiranPiketId}`);
     }
 
     // ==================== KEGIATAN ====================
@@ -345,6 +372,11 @@ class ApiClient {
             method: 'POST',
             body: JSON.stringify({ kadaluarsa_menit }),
         });
+    }
+
+    // Admin: Batalkan publikasi kegiatan
+    async batalkanPublikasiKegiatan(id: number) {
+        return this.request(`/kegiatan/${id}/batalkan-publikasi`, { method: 'POST' });
     }
 
     // Admin: Get kehadiran kegiatan
