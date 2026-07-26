@@ -56,12 +56,12 @@ Buat file `.env` di folder `backend/`:
 # Database MySQL
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=hmsi_absensi
-DB_USER=root
-DB_PASSWORD=
+DB_NAME=your_database_name
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
 
 # JWT
-JWT_SECRET=your-secret-key-here
+JWT_SECRET=your-random-secret-key-min-32-chars
 JWT_EXPIRES_IN=7d
 
 # Server
