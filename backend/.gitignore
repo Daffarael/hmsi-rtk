@@ -1,6 +1,27 @@
+# Dependencies
 node_modules/
+
+# Environment
 .env
+.env.local
 .env.production
-*.log
-uploads/*
+.env.development
+
+# Uploads (runtime user files — tidak di-commit ke git)
+uploads/**/*
 !uploads/.gitkeep
+!uploads/piket/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
