@@ -93,7 +93,12 @@ export default function AdminDashboard() {
         >
             {/* Welcome */}
             <motion.div className={styles.welcome} variants={itemVariants}>
-                <h1>Selamat Datang, {pengguna?.nama_panggilan}! <span className={styles.waveEmoji}>👋</span></h1>
+                <h1>
+                    <span className={styles.titleWrapper}>
+                        <span className={styles.gradientText}>Selamat Datang, {pengguna?.nama_panggilan}!</span>
+                    </span>
+                    <span className={styles.waveEmoji}>👋</span>
+                </h1>
                 <p>Berikut ringkasan data HMSI periode {pengguna?.periode?.nama}</p>
             </motion.div>
 

@@ -74,7 +74,10 @@ export default function AnggotaDashboard() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
             >
-                <h1>Halo, {pengguna?.nama_panggilan}! <span className={styles.emoji}>👋</span></h1>
+                <h1>
+                    <span className={styles.gradientText}>Halo, {pengguna?.nama_panggilan}!</span>
+                    <span className={styles.emoji}>👋</span>
+                </h1>
                 <p>Selamat datang di sistem absensi HMSI</p>
             </motion.div>
 

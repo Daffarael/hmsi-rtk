@@ -20,6 +20,21 @@
     font-size: 1.875rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
+    animation: floatTitle 5s ease-in-out infinite;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: fit-content;
+}
+
+.titleWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.gradientText {
     background: linear-gradient(90deg,
             #1a1a2e,
             #f97316,
@@ -31,13 +46,12 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: premiumShimmer 4s ease-in-out infinite, floatTitle 3s ease-in-out infinite;
+    animation: premiumShimmer 4s ease-in-out infinite;
     filter: drop-shadow(0 4px 12px rgba(249, 115, 22, 0.15));
     letter-spacing: -0.02em;
-    position: relative;
 }
 
-.welcome h1::after {
+.titleWrapper::after {
     content: '';
     position: absolute;
     bottom: -4px;
@@ -71,7 +85,7 @@
     }
 
     50% {
-        transform: translateY(-3px);
+        transform: translateY(-4px);
     }
 }
 
@@ -82,7 +96,7 @@
     }
 
     100% {
-        width: 60%;
+        width: 100%;
         opacity: 1;
     }
 }
