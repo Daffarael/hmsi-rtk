@@ -22,12 +22,8 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-        return callback(new Error('Not allowed by CORS'));
+        // Allow all origins temporarily for mobile testing
+        return callback(null, true);
     },
     credentials: true
 }));
