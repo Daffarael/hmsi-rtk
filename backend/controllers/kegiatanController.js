@@ -20,6 +20,11 @@ exports.semuaKegiatan = async (req, res) => {
                     model: KehadiranKegiatan,
                     as: 'kehadiran',
                     attributes: ['id']
+                },
+                {
+                    model: Divisi,
+                    as: 'divisi',
+                    attributes: ['id', 'nama']
                 }
             ]
         });
@@ -44,6 +49,11 @@ exports.detailKegiatan = async (req, res) => {
 
         const kegiatan = await Kegiatan.findByPk(id, {
             include: [
+                {
+                    model: Divisi,
+                    as: 'divisi',
+                    attributes: ['id', 'nama']
+                },
                 {
                     model: KehadiranKegiatan,
                     as: 'kehadiran',
@@ -73,7 +83,7 @@ exports.detailKegiatan = async (req, res) => {
 // POST /api/kegiatan - Buat kegiatan baru
 exports.buatKegiatan = async (req, res) => {
     try {
-        const { nama, deskripsi, tanggal_kegiatan, waktu_kegiatan, lokasi } = req.body;
+        const { nama, deskripsi, tanggal_kegiatan, waktu_kegiatan, lokasi, divisi_id } = req.body;
 
         if (!nama || !tanggal_kegiatan) {
             return res.status(400).json({ sukses: false, pesan: 'Nama dan tanggal kegiatan wajib diisi' });
@@ -94,6 +104,7 @@ exports.buatKegiatan = async (req, res) => {
             tanggal_kegiatan,
             waktu_kegiatan,
             lokasi,
+            divisi_id: divisi_id || null,
             kode_qr
         });
 
@@ -112,7 +123,7 @@ exports.buatKegiatan = async (req, res) => {
 exports.editKegiatan = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nama, deskripsi, tanggal_kegiatan, waktu_kegiatan, lokasi } = req.body;
+        const { nama, deskripsi, tanggal_kegiatan, waktu_kegiatan, lokasi, divisi_id } = req.body;
 
         const kegiatan = await Kegiatan.findByPk(id);
         if (!kegiatan) {
@@ -124,7 +135,8 @@ exports.editKegiatan = async (req, res) => {
             deskripsi: deskripsi !== undefined ? deskripsi : kegiatan.deskripsi,
             tanggal_kegiatan: tanggal_kegiatan || kegiatan.tanggal_kegiatan,
             waktu_kegiatan: waktu_kegiatan !== undefined ? waktu_kegiatan : kegiatan.waktu_kegiatan,
-            lokasi: lokasi !== undefined ? lokasi : kegiatan.lokasi
+            lokasi: lokasi !== undefined ? lokasi : kegiatan.lokasi,
+            divisi_id: divisi_id !== undefined ? (divisi_id || null) : kegiatan.divisi_id
         });
 
         res.json({ sukses: true, pesan: 'Kegiatan berhasil diperbarui', data: kegiatan });

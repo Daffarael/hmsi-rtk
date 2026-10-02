@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import api from '@/lib/api';
 import styles from './rapat.module.css';
+import CustomSelect from '@/components/CustomSelect';
 
 interface Rapat {
     id: number;
@@ -307,18 +308,20 @@ export default function RapatPage() {
 
                                     <div className="input-group">
                                         <label className="input-label">Jenis Rapat *</label>
-                                        <select className="input-field" value={formData.jenis_rapat_id}
-                                            onChange={(e) => {
-                                                const selectedJenis = jenisRapat.find(j => j.id.toString() === e.target.value);
+                                        <CustomSelect
+                                            value={formData.jenis_rapat_id}
+                                            onChange={(val) => {
+                                                const selectedJenis = jenisRapat.find(j => j.id.toString() === val.toString());
                                                 setFormData({
                                                     ...formData,
-                                                    jenis_rapat_id: e.target.value,
+                                                    jenis_rapat_id: val as string,
                                                     nama: selectedJenis?.nama || ''
                                                 });
-                                            }} required>
-                                            <option value="">Pilih Jenis Rapat</option>
-                                            {jenisRapat.map((j) => <option key={j.id} value={j.id}>{j.nama}</option>)}
-                                        </select>
+                                            }}
+                                            options={jenisRapat.map(j => ({ value: j.id, label: j.nama }))}
+                                            placeholder="Pilih Jenis Rapat"
+                                            required={true}
+                                        />
                                     </div>
 
                                     <div className="input-group">

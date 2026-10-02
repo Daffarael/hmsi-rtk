@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '@/lib/api';
 import styles from './piket.module.css';
+import CustomSelect from '@/components/CustomSelect';
 
 interface Pengguna {
     id: number;
@@ -364,24 +365,18 @@ export default function PiketPage() {
                 /* Kehadiran Tab */
                 <div className={styles.kehadiranSection}>
                     <div className={styles.filterBar}>
-                        <select
-                            className="input-field"
+                        <CustomSelect
                             value={selectedBulan}
-                            onChange={(e) => setSelectedBulan(parseInt(e.target.value))}
-                        >
-                            {BULAN_LABEL.map((b, i) => (
-                                <option key={i} value={i + 1}>{b}</option>
-                            ))}
-                        </select>
-                        <select
-                            className="input-field"
+                            onChange={(val) => setSelectedBulan(parseInt(val as string))}
+                            options={BULAN_LABEL.map((b, i) => ({ value: i + 1, label: b }))}
+                            placeholder="Pilih Bulan"
+                        />
+                        <CustomSelect
                             value={selectedTahun}
-                            onChange={(e) => setSelectedTahun(parseInt(e.target.value))}
-                        >
-                            {[2025, 2026, 2027].map(y => (
-                                <option key={y} value={y}>{y}</option>
-                            ))}
-                        </select>
+                            onChange={(val) => setSelectedTahun(parseInt(val as string))}
+                            options={[2025, 2026, 2027].map(y => ({ value: y, label: y.toString() }))}
+                            placeholder="Pilih Tahun"
+                        />
                     </div>
 
                     {getHariWithData().length > 0 ? (

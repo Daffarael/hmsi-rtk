@@ -15,6 +15,14 @@ const Kegiatan = sequelize.define('Kegiatan', {
             key: 'id'
         }
     },
+    divisi_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'divisi',
+            key: 'id'
+        }
+    },
     nama: {
         type: DataTypes.STRING(200),
         allowNull: false

@@ -77,53 +77,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Cursor */
+/* Orange Native Cursor (Universal) */
 @media (min-width: 1024px) {
-  body {
-    cursor: none;
-  }
-
-  a,
-  button,
-  [role="button"],
-  input,
-  select,
-  textarea,
-  label {
-    cursor: none !important;
-  }
-}
-
-.custom-cursor-dot {
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  background: var(--utama-500);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999999;
-  transition: transform 0.15s ease-out, opacity 0.2s ease;
-  mix-blend-mode: difference;
-}
-
-.custom-cursor-ring {
-  position: fixed;
-  width: 40px;
-  height: 40px;
-  border: 2px solid var(--utama-400);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999998;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    opacity 0.2s ease,
-    border-color 0.3s ease;
-}
-
-@media (max-width: 1023px) {
-
-  .custom-cursor-dot,
-  .custom-cursor-ring {
-    display: none !important;
+  *, *::before, *::after {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M4 2.5l14.2 13.5-6.9.7 4 8.5-2.6 1.2-4-8.5-5.5 5.5z" fill="%23F97316" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>') 4 2, auto !important;
   }
 }
 
@@ -320,22 +277,95 @@ textarea.input-field:focus {
   min-height: 120px;
 }
 
-/* Custom Select Styling */
-select.input-field {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: var(--putih) url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 1.125rem center / 14px !important;
-  padding-right: 3rem;
+/* Custom Select Component Styling */
+.custom-select-container {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   cursor: pointer;
+  user-select: none;
 }
 
-select.input-field:hover {
-  background: rgba(255, 247, 237, 0.5) url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F97316' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 1.125rem center / 14px !important;
+.custom-select-trigger .selected-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 1rem;
 }
 
-select.input-field:focus {
-  background: rgba(255, 247, 237, 0.6) url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F97316' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 1.125rem center / 14px !important;
+.custom-select-trigger .selected-value.placeholder {
+  color: var(--abu-400);
+}
+
+.custom-select-trigger.open {
+  border-color: var(--utama-500);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 8px 24px rgba(249, 115, 22, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 237, 213, 0.4) 100%);
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background: var(--putih);
+  border: 1px solid var(--abu-200);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  padding: 0.5rem;
+  /* Scrollbar custom */
+  scrollbar-width: thin;
+  scrollbar-color: var(--abu-300) transparent;
+}
+
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background-color: var(--abu-300);
+  border-radius: 10px;
+}
+
+.custom-select-option {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.25rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--abu-700);
+  transition: all 0.2s ease;
+  font-size: 0.9375rem;
+}
+
+.custom-select-option:last-child {
+  margin-bottom: 0;
+}
+
+.custom-select-option:hover {
+  background: var(--utama-50);
+  color: var(--utama-700);
+}
+
+.custom-select-option.selected {
+  background: var(--utama-100);
+  color: var(--utama-800);
+  font-weight: 600;
+}
+
+.custom-select-option .check-icon {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }
 
 /* Date and Time inputs */

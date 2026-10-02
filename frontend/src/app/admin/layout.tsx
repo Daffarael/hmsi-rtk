@@ -18,7 +18,6 @@ const menuItems = [
     { href: '/admin/piket', label: 'Piket', icon: 'clipboard' },
     { href: '/admin/kegiatan', label: 'Kegiatan', icon: 'star' },
     { href: '/admin/leaderboard', label: 'Leaderboard', icon: 'chart' },
-    { href: '/admin/of-the-month', label: 'Of The Month', icon: 'trophy' },
     { href: '/admin/laporan', label: 'Laporan', icon: 'file' },
 ];
 

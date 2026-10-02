@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import styles from './kegiatan.module.css';
+import CustomSelect from '@/components/CustomSelect';
 
 interface Kegiatan {
     id: number;
@@ -19,10 +20,18 @@ interface Kegiatan {
     dipublikasikan_pada: string | null;
     kadaluarsa_pada: string | null;
     jumlah_hadir: number;
+    divisi?: { id: number; nama: string };
+    divisi_id?: number | null;
+}
+
+interface Divisi {
+    id: number;
+    nama: string;
 }
 
 export default function KegiatanPage() {
     const [kegiatan, setKegiatan] = useState<Kegiatan[]>([]);
+    const [divisi, setDivisi] = useState<Divisi[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editData, setEditData] = useState<Kegiatan | null>(null);
@@ -33,6 +42,7 @@ export default function KegiatanPage() {
         tanggal_kegiatan: '',
         waktu_kegiatan: '',
         lokasi: '',
+        divisi_id: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -42,10 +52,14 @@ export default function KegiatanPage() {
     const [publishKegiatan, setPublishKegiatan] = useState<Kegiatan | null>(null);
     const [durasiMenit, setDurasiMenit] = useState('120');
 
-    const fetchKegiatan = async () => {
+    const fetchData = async () => {
         try {
-            const res = await api.semuaKegiatan();
-            setKegiatan(Array.isArray(res.data) ? res.data : []);
+            const [kegiatanRes, divisiRes] = await Promise.all([
+                api.semuaKegiatan(),
+                api.semuaDivisi(),
+            ]);
+            setKegiatan(Array.isArray(kegiatanRes.data) ? kegiatanRes.data : []);
+            setDivisi(Array.isArray(divisiRes.data) ? divisiRes.data : []);
         } catch (error) {
             console.error('Error:', error);
         } finally {
@@ -54,7 +68,7 @@ export default function KegiatanPage() {
     };
 
     useEffect(() => {
-        fetchKegiatan();
+        fetchData();
     }, []);
 
     const openAddModal = () => {
@@ -65,6 +79,7 @@ export default function KegiatanPage() {
             tanggal_kegiatan: '',
             waktu_kegiatan: '',
             lokasi: '',
+            divisi_id: '',
         });
         setError('');
         setShowModal(true);
@@ -78,6 +93,7 @@ export default function KegiatanPage() {
             tanggal_kegiatan: data.tanggal_kegiatan.split('T')[0],
             waktu_kegiatan: data.waktu_kegiatan || '',
             lokasi: data.lokasi || '',
+            divisi_id: data.divisi?.id?.toString() || data.divisi_id?.toString() || '',
         });
         setError('');
         setShowModal(true);
@@ -89,13 +105,18 @@ export default function KegiatanPage() {
         setIsSubmitting(true);
 
         try {
+            const payload = {
+                ...formData,
+                divisi_id: formData.divisi_id ? parseInt(formData.divisi_id) : null,
+            };
+
             if (editData) {
-                await api.editKegiatan(editData.id, formData);
+                await api.editKegiatan(editData.id, payload);
             } else {
-                await api.buatKegiatan(formData);
+                await api.buatKegiatan(payload);
             }
             setShowModal(false);
-            fetchKegiatan();
+            fetchData();
         } catch (err: any) {
             setError(err.message || 'Terjadi kesalahan');
         } finally {
@@ -107,7 +128,7 @@ export default function KegiatanPage() {
         if (!confirm(`Yakin ingin menghapus "${nama}"?`)) return;
         try {
             await api.hapusKegiatan(id);
-            fetchKegiatan();
+            fetchData();
         } catch (err: any) {
             alert(err.message || 'Gagal menghapus');
         }
@@ -118,7 +139,7 @@ export default function KegiatanPage() {
         try {
             await api.publikasikanKegiatan(publishKegiatan.id, parseInt(durasiMenit) || undefined);
             setShowPublishModal(false);
-            fetchKegiatan();
+            fetchData();
         } catch (err: any) {
             alert(err.message || 'Gagal publikasi');
         }
@@ -128,7 +149,7 @@ export default function KegiatanPage() {
         if (!confirm('Batalkan publikasi QR?')) return;
         try {
             await api.batalkanPublikasiKegiatan(id);
-            fetchKegiatan();
+            fetchData();
         } catch (err: any) {
             alert(err.message || 'Gagal batalkan publikasi');
         }
@@ -209,6 +230,14 @@ export default function KegiatanPage() {
                                             <circle cx="12" cy="10" r="3" />
                                         </svg>
                                         {k.lokasi}
+                                    </p>
+                                )}
+                                {k.divisi && (
+                                    <p className={styles.kegiatanLokasi} style={{ marginTop: '0.25rem' }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                        </svg>
+                                        {k.divisi.nama}
                                     </p>
                                 )}
                                 <div className={styles.kegiatanStats}>
@@ -330,6 +359,16 @@ export default function KegiatanPage() {
                                             className="input-field"
                                             value={formData.lokasi}
                                             onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="input-group">
+                                        <label className="input-label">Divisi Penyelenggara</label>
+                                        <CustomSelect
+                                            value={formData.divisi_id}
+                                            onChange={(val) => setFormData({ ...formData, divisi_id: val as string })}
+                                            options={divisi.map(d => ({ value: d.id, label: d.nama }))}
+                                            placeholder="Umum"
                                         />
                                     </div>
                                 </div>

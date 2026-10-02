@@ -3,8 +3,7 @@ const {
     Pengguna, Periode, Divisi,
     Kehadiran, Rapat,
     JadwalPiket, KehadiranPiket,
-    Kegiatan, KehadiranKegiatan,
-    OfTheMonth
+    Kegiatan, KehadiranKegiatan
 } = require('../models');
 
 // Konstanta bobot skor
@@ -189,16 +188,6 @@ exports.getRekomendasi = async (req, res) => {
         );
         skorStaff.sort((a, b) => b.skor - a.skor);
 
-        // Cek apakah sudah ada pilihan untuk bulan ini
-        const existing = await OfTheMonth.findAll({
-            where: {
-                periode_id: periodeAktif.id,
-                bulan: targetBulan,
-                tahun: targetTahun
-            },
-            include: [{ model: Pengguna, as: 'pengguna', attributes: ['id', 'nama_lengkap', 'nama_panggilan'] }]
-        });
-
         res.json({
             sukses: true,
             data: {
@@ -211,92 +200,11 @@ exports.getRekomendasi = async (req, res) => {
                 top5: {
                     presidium: skorPresidium.slice(0, 5),
                     staff: skorStaff.slice(0, 5)
-                },
-                sudahDipilih: {
-                    presidium: existing.find(e => e.tipe === 'presidium') || null,
-                    staff: existing.find(e => e.tipe === 'staff') || null
                 }
             }
         });
     } catch (error) {
         console.error('Error getRekomendasi:', error);
         res.status(500).json({ sukses: false, pesan: 'Gagal mengambil rekomendasi' });
-    }
-};
-
-// POST /api/leaderboard/pilih - Pilih "Of the Month"
-exports.pilihOfTheMonth = async (req, res) => {
-    try {
-        const { bulan, tahun, tipe, pengguna_id, catatan } = req.body;
-
-        if (!bulan || !tahun || !tipe || !pengguna_id) {
-            return res.status(400).json({ sukses: false, pesan: 'bulan, tahun, tipe, dan pengguna_id wajib diisi' });
-        }
-
-        if (!['presidium', 'staff'].includes(tipe)) {
-            return res.status(400).json({ sukses: false, pesan: 'Tipe harus presidium atau staff' });
-        }
-
-        const periodeAktif = await Periode.findOne({ where: { aktif: true } });
-        if (!periodeAktif) {
-            return res.status(404).json({ sukses: false, pesan: 'Tidak ada periode aktif' });
-        }
-
-        // Validasi pengguna
-        const pengguna = await Pengguna.findByPk(pengguna_id);
-        if (!pengguna || pengguna.tipe_anggota !== tipe) {
-            return res.status(400).json({ sukses: false, pesan: `Pengguna harus bertipe ${tipe}` });
-        }
-
-        // Hitung skor
-        const skorData = await hitungSkorAnggota(pengguna_id, bulan, tahun, periodeAktif.id);
-
-        // Upsert
-        const [record, created] = await OfTheMonth.upsert({
-            periode_id: periodeAktif.id,
-            bulan,
-            tahun,
-            tipe,
-            pengguna_id,
-            skor: skorData.skor,
-            catatan
-        }, {
-            conflictFields: ['periode_id', 'bulan', 'tahun', 'tipe']
-        });
-
-        res.json({
-            sukses: true,
-            pesan: created ? 'Of the Month berhasil dipilih' : 'Of the Month berhasil diperbarui',
-            data: record
-        });
-    } catch (error) {
-        console.error('Error pilihOfTheMonth:', error);
-        res.status(500).json({ sukses: false, pesan: 'Gagal menyimpan pilihan' });
-    }
-};
-
-// GET /api/leaderboard/history - History "Of the Month"
-exports.getHistory = async (req, res) => {
-    try {
-        const periodeAktif = await Periode.findOne({ where: { aktif: true } });
-        if (!periodeAktif) {
-            return res.status(404).json({ sukses: false, pesan: 'Tidak ada periode aktif' });
-        }
-
-        const history = await OfTheMonth.findAll({
-            where: { periode_id: periodeAktif.id },
-            include: [{
-                model: Pengguna,
-                as: 'pengguna',
-                attributes: ['id', 'nama_lengkap', 'nama_panggilan', 'tipe_anggota'],
-                include: [{ model: Divisi, as: 'divisi', attributes: ['id', 'nama'] }]
-            }],
-            order: [['tahun', 'DESC'], ['bulan', 'DESC']]
-        });
-
-        res.json({ sukses: true, data: history });
-    } catch (error) {
-        console.error('Error getHistory:', error);
-        res.status(500).json({ sukses: false, pesan: 'Gagal mengambil history' });
     }
 };

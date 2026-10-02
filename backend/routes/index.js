@@ -104,8 +104,6 @@ router.get('/kehadiran-kegiatan/:id', verifikasiToken, hanyaAdmin, cekMasaJabata
 // ==================== LEADERBOARD ====================
 router.get('/leaderboard', verifikasiToken, hanyaAdmin, cekMasaJabatan, leaderboardController.getLeaderboard);
 router.get('/leaderboard/rekomendasi', verifikasiToken, hanyaAdmin, cekMasaJabatan, leaderboardController.getRekomendasi);
-router.post('/leaderboard/pilih', verifikasiToken, hanyaAdmin, cekMasaJabatan, leaderboardController.pilihOfTheMonth);
-router.get('/leaderboard/history', verifikasiToken, hanyaAdmin, cekMasaJabatan, leaderboardController.getHistory);
 
 // ==================== EKSPOR (Admin Only) ====================
 router.get('/ekspor/rapat/:id/excel', verifikasiToken, hanyaAdmin, cekMasaJabatan, eksporController.eksporRapatExcel);

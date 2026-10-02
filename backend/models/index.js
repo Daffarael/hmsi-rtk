@@ -11,7 +11,6 @@ const KehadiranPiket = require('./KehadiranPiket');
 const QRPiket = require('./QRPiket');
 const Kegiatan = require('./Kegiatan');
 const KehadiranKegiatan = require('./KehadiranKegiatan');
-const OfTheMonth = require('./OfTheMonth');
 const BuktiPiket = require('./BuktiPiket');
 
 // ==================== ASOSIASI ====================
@@ -76,6 +75,10 @@ QRPiket.belongsTo(Periode, { foreignKey: 'periode_id', as: 'periode' });
 Periode.hasMany(Kegiatan, { foreignKey: 'periode_id', as: 'kegiatan' });
 Kegiatan.belongsTo(Periode, { foreignKey: 'periode_id', as: 'periode' });
 
+// Divisi -> Kegiatan (1:N)
+Divisi.hasMany(Kegiatan, { foreignKey: 'divisi_id', as: 'kegiatan' });
+Kegiatan.belongsTo(Divisi, { foreignKey: 'divisi_id', as: 'divisi' });
+
 // Kegiatan -> KehadiranKegiatan (1:N)
 Kegiatan.hasMany(KehadiranKegiatan, { foreignKey: 'kegiatan_id', as: 'kehadiran' });
 KehadiranKegiatan.belongsTo(Kegiatan, { foreignKey: 'kegiatan_id', as: 'kegiatan' });
@@ -83,16 +86,6 @@ KehadiranKegiatan.belongsTo(Kegiatan, { foreignKey: 'kegiatan_id', as: 'kegiatan
 // Pengguna -> KehadiranKegiatan (1:N)
 Pengguna.hasMany(KehadiranKegiatan, { foreignKey: 'pengguna_id', as: 'kehadiran_kegiatan' });
 KehadiranKegiatan.belongsTo(Pengguna, { foreignKey: 'pengguna_id', as: 'pengguna' });
-
-// ==================== ASOSIASI OF THE MONTH ====================
-
-// Periode -> OfTheMonth (1:N)
-Periode.hasMany(OfTheMonth, { foreignKey: 'periode_id', as: 'of_the_month' });
-OfTheMonth.belongsTo(Periode, { foreignKey: 'periode_id', as: 'periode' });
-
-// Pengguna -> OfTheMonth (1:N)
-Pengguna.hasMany(OfTheMonth, { foreignKey: 'pengguna_id', as: 'penghargaan' });
-OfTheMonth.belongsTo(Pengguna, { foreignKey: 'pengguna_id', as: 'pengguna' });
 
 module.exports = {
     sequelize,
@@ -108,6 +101,5 @@ module.exports = {
     QRPiket,
     Kegiatan,
     KehadiranKegiatan,
-    OfTheMonth,
     BuktiPiket
 };

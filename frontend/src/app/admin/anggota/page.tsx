@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import styles from './anggota.module.css';
+import CustomSelect from '@/components/CustomSelect';
 
 interface Anggota {
     id: number;
@@ -179,16 +180,13 @@ export default function AnggotaPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <select
-                    className="input-field"
+                <CustomSelect
                     value={filterDivisi}
-                    onChange={(e) => setFilterDivisi(e.target.value)}
-                >
-                    <option value="">Semua Divisi</option>
-                    {divisi.map((d) => (
-                        <option key={d.id} value={d.id}>{d.nama}</option>
-                    ))}
-                </select>
+                    onChange={(val) => setFilterDivisi(val as string)}
+                    options={divisi.map(d => ({ value: d.id, label: d.nama }))}
+                    placeholder="Semua Divisi"
+                    className="w-full"
+                />
             </div>
 
             {/* Table */}
@@ -349,16 +347,6 @@ export default function AnggotaPage() {
                                     </div>
 
                                     <div className="input-group">
-                                        <label className="input-label">Nomor Telepon</label>
-                                        <input
-                                            type="text"
-                                            className="input-field"
-                                            value={formData.nomor_telepon}
-                                            onChange={(e) => setFormData({ ...formData, nomor_telepon: e.target.value })}
-                                        />
-                                    </div>
-
-                                    <div className="input-group">
                                         <label className="input-label">Angkatan</label>
                                         <input
                                             type="number"
@@ -371,29 +359,26 @@ export default function AnggotaPage() {
 
                                     <div className="input-group">
                                         <label className="input-label">Divisi</label>
-                                        <select
-                                            className="input-field"
+                                        <CustomSelect
                                             value={formData.divisi_id}
-                                            onChange={(e) => setFormData({ ...formData, divisi_id: e.target.value })}
-                                        >
-                                            <option value="">Pilih Divisi</option>
-                                            {divisi.map((d) => (
-                                                <option key={d.id} value={d.id}>{d.nama}</option>
-                                            ))}
-                                        </select>
+                                            onChange={(val) => setFormData({ ...formData, divisi_id: val as string })}
+                                            options={divisi.map(d => ({ value: d.id, label: d.nama }))}
+                                            placeholder="Pilih Divisi"
+                                        />
                                     </div>
 
                                     <div className="input-group">
-                                        <label className="input-label">Tipe Anggota *</label>
-                                        <select
-                                            className="input-field"
+                                        <label className="input-label">Peran dalam Organisasi *</label>
+                                        <CustomSelect
                                             value={formData.tipe_anggota}
-                                            onChange={(e) => setFormData({ ...formData, tipe_anggota: e.target.value as 'presidium' | 'staff' })}
-                                            required
-                                        >
-                                            <option value="staff">Staff</option>
-                                            <option value="presidium">Presidium</option>
-                                        </select>
+                                            onChange={(val) => setFormData({ ...formData, tipe_anggota: val as 'presidium' | 'staff' })}
+                                            options={[
+                                                { value: 'staff', label: 'Staff' },
+                                                { value: 'presidium', label: 'Presidium' }
+                                            ]}
+                                            placeholder="Pilih Peran"
+                                            required={true}
+                                        />
                                         <small style={{ color: 'var(--abu-500)', fontSize: '0.75rem' }}>Presidium: anggota inti, Staff: anggota biasa</small>
                                     </div>
                                 </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '@/lib/api';
 import styles from './leaderboard.module.css';
+import CustomSelect from '@/components/CustomSelect';
 
 interface LeaderboardItem {
     rank: number;
@@ -80,33 +81,28 @@ export default function LeaderboardPage() {
 
             {/* Filters */}
             <div className={styles.filters}>
-                <select
-                    className="input-field"
+                <CustomSelect
                     value={selectedBulan}
-                    onChange={(e) => setSelectedBulan(parseInt(e.target.value))}
-                >
-                    {BULAN_LABEL.map((b, i) => (
-                        <option key={i} value={i + 1}>{b}</option>
-                    ))}
-                </select>
-                <select
-                    className="input-field"
+                    onChange={(val) => setSelectedBulan(parseInt(val as string))}
+                    options={BULAN_LABEL.map((b, i) => ({ value: i + 1, label: b }))}
+                    placeholder="Bulan"
+                />
+                <CustomSelect
                     value={selectedTahun}
-                    onChange={(e) => setSelectedTahun(parseInt(e.target.value))}
-                >
-                    {[2024, 2025, 2026, 2027].map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                    ))}
-                </select>
-                <select
-                    className="input-field"
+                    onChange={(val) => setSelectedTahun(parseInt(val as string))}
+                    options={[2024, 2025, 2026, 2027].map((y) => ({ value: y, label: y.toString() }))}
+                    placeholder="Tahun"
+                />
+                <CustomSelect
                     value={filterTipe}
-                    onChange={(e) => setFilterTipe(e.target.value as 'all' | 'presidium' | 'staff')}
-                >
-                    <option value="all">Semua Tipe</option>
-                    <option value="presidium">Presidium</option>
-                    <option value="staff">Staff</option>
-                </select>
+                    onChange={(val) => setFilterTipe(val as 'all' | 'presidium' | 'staff')}
+                    options={[
+                        { value: 'all', label: 'Semua Peran' },
+                        { value: 'presidium', label: 'Presidium' },
+                        { value: 'staff', label: 'Staff' }
+                    ]}
+                    placeholder="Peran"
+                />
             </div>
 
             {/* Leaderboard Table */}
@@ -126,7 +122,7 @@ export default function LeaderboardPage() {
                             <tr>
                                 <th style={{ width: '60px' }}>Rank</th>
                                 <th>Nama</th>
-                                <th>Tipe</th>
+                                <th>Peran</th>
                                 <th>Divisi</th>
                                 <th style={{ textAlign: 'center' }}>Piket</th>
                                 <th style={{ textAlign: 'center' }}>Rapat</th>
