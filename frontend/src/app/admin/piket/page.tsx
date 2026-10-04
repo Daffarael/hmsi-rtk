@@ -532,15 +532,33 @@ export default function PiketPage() {
                                 </div>
                             )}
                             <div className={`modal-body ${styles.qrBody}`}>
-                                <div className={styles.qrContainer}>
-                                    <QRCodeSVG
-                                        value={qrData.kode_qr}
-                                        size={isFullscreen ? 400 : 250}
-                                        bgColor="#ffffff"
-                                        fgColor="#000000"
-                                        level="H"
-                                        includeMargin={true}
-                                    />
+                                <div style={{ display: 'flex', flexDirection: isFullscreen ? 'row' : 'column', gap: '30px', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div>
+                                        <h4 style={{ textAlign: 'center', marginBottom: '10px' }}>QR Piket Reguler</h4>
+                                        <div className={styles.qrContainer}>
+                                            <QRCodeSVG
+                                                value={qrData.kode_qr}
+                                                size={isFullscreen ? 300 : 200}
+                                                bgColor="#ffffff"
+                                                fgColor="#000000"
+                                                level="H"
+                                                includeMargin={true}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 style={{ textAlign: 'center', marginBottom: '10px', color: '#f59e0b' }}>QR Ganti Piket</h4>
+                                        <div className={styles.qrContainer}>
+                                            <QRCodeSVG
+                                                value={`GANTI-${qrData.kode_qr}`}
+                                                size={isFullscreen ? 300 : 200}
+                                                bgColor="#ffffff"
+                                                fgColor="#000000"
+                                                level="H"
+                                                includeMargin={true}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 <p className={styles.qrInfo}>
                                     Periode: <strong>{qrData.periode}</strong>

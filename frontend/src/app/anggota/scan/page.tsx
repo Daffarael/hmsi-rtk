@@ -106,6 +106,9 @@ export default function ScanPage() {
     const [piketMode, setPiketMode] = useState(false);
     const [piketFlowMode, setPiketFlowMode] = useState<'checkin' | 'checkout'>('checkin');
     const [piketStep, setPiketStep] = useState<PiketStep>('selfie');
+    const [showGantiForm, setShowGantiForm] = useState(false);
+    const [pendingQR, setPendingQR] = useState('');
+    const [tanggalGanti, setTanggalGanti] = useState('');
     const [kehadiranPiketId, setKehadiranPiketId] = useState<number | null>(null);
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
     const [uploadError, setUploadError] = useState('');
@@ -146,6 +149,14 @@ export default function ScanPage() {
 
                         if (isPiketQR) {
                             const response = await api.scanPiket(decodedText);
+                            
+                            if (response.sukses && response.data?.perlu_tanggal_ganti) {
+                                setShowGantiForm(true);
+                                setPendingQR(decodedText);
+                                setIsProcessing(false);
+                                return;
+                            }
+                            
                             setResult({
                                 sukses: response.sukses,
                                 pesan: response.pesan,
@@ -156,7 +167,7 @@ export default function ScanPage() {
                                 setPiketMode(true);
                                 const mode = response.data.mode as 'checkin' | 'checkout';
                                 setPiketFlowMode(mode || 'checkin');
-                                setPiketStep(mode === 'checkout' ? 'sekre_sesudah' : 'selfie');
+                                setPiketStep(mode === 'checkout' ? 'selfie_keluar' : 'selfie');
                             }
                         } else {
                             // Try rapat scan first
@@ -281,6 +292,9 @@ export default function ScanPage() {
         setError('');
         setPiketMode(false);
         setPiketStep('selfie');
+        setShowGantiForm(false);
+        setPendingQR('');
+        setTanggalGanti('');
         setKehadiranPiketId(null);
         setUploadError('');
         setUploadProgress('');
@@ -386,6 +400,32 @@ export default function ScanPage() {
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     // Render piket photo upload flow
+
+    const handleSubmitGanti = async () => {
+        if (!tanggalGanti) return;
+        setIsProcessing(true);
+        setShowGantiForm(false);
+        try {
+            const response = await api.scanPiket(pendingQR, tanggalGanti);
+            setResult({
+                sukses: response.sukses,
+                pesan: response.pesan,
+                data: response.data as ScanResult['data'],
+            });
+            if (response.sukses && response.data?.kehadiran_piket_id) {
+                setKehadiranPiketId(response.data.kehadiran_piket_id);
+                setPiketMode(true);
+                const mode = response.data.mode as 'checkin' | 'checkout';
+                setPiketFlowMode(mode || 'checkin');
+                setPiketStep(mode === 'checkout' ? 'selfie_keluar' : 'selfie');
+            }
+        } catch (err: any) {
+            setError(err.message || 'Terjadi kesalahan saat memproses absen piket ganti');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     const renderPiketFlow = () => {
         if (!piketMode) return null;
 
