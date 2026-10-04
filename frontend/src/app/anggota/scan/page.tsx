@@ -104,6 +104,7 @@ export default function ScanPage() {
 
     // Piket photo upload states
     const [piketMode, setPiketMode] = useState(false);
+    const [piketFlowMode, setPiketFlowMode] = useState<'checkin' | 'checkout'>('checkin');
     const [piketStep, setPiketStep] = useState<PiketStep>('selfie');
     const [kehadiranPiketId, setKehadiranPiketId] = useState<number | null>(null);
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -152,7 +153,9 @@ export default function ScanPage() {
                             if (response.sukses && response.data?.kehadiran_piket_id) {
                                 setKehadiranPiketId(response.data.kehadiran_piket_id);
                                 setPiketMode(true);
-                                setPiketStep('selfie');
+                                const mode = response.data.mode as 'checkin' | 'checkout';
+                                setPiketFlowMode(mode || 'checkin');
+                                setPiketStep(mode === 'checkout' ? 'sekre_sesudah' : 'selfie');
                             }
                         } else {
                             // Try rapat scan first
@@ -300,15 +303,26 @@ export default function ScanPage() {
             tipe: piketStep as 'selfie' | 'sekre_sebelum' | 'sekre_sesudah',
         }]);
 
-        // Auto-advance to next step
-        if (piketStep === 'selfie') {
-            setPiketStep('sekre_sebelum');
-        }
-        // For sekre photos, stay on same step until user advances manually
-
         // Reset input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+
+        // Auto-advance
+        setTimeout(() => handleNext(), 300);
+    };
+
+    const getStepOrder = (): PiketStep[] => {
+        return piketFlowMode === 'checkout'
+            ? ['sekre_sesudah', 'review']
+            : ['selfie', 'sekre_sebelum', 'review'];
+    };
+
+    const handleNext = () => {
+        const order = getStepOrder();
+        const currentIndex = order.indexOf(piketStep);
+        if (currentIndex < order.length - 1) {
+            setPiketStep(order[currentIndex + 1]);
         }
     };
 
@@ -322,20 +336,14 @@ export default function ScanPage() {
     };
 
     const goToNextStep = () => {
-        if (piketStep === 'sekre_sebelum') {
-            setPiketStep('sekre_sesudah');
-        } else if (piketStep === 'sekre_sesudah') {
-            setPiketStep('review');
-        }
+        handleNext();
     };
 
     const goToPrevStep = () => {
-        if (piketStep === 'sekre_sebelum') {
-            setPiketStep('selfie');
-        } else if (piketStep === 'sekre_sesudah') {
-            setPiketStep('sekre_sebelum');
-        } else if (piketStep === 'review') {
-            setPiketStep('sekre_sesudah');
+        const order = getStepOrder();
+        const currentIndex = order.indexOf(piketStep);
+        if (currentIndex > 0) {
+            setPiketStep(order[currentIndex - 1]);
         }
     };
 
@@ -380,7 +388,10 @@ export default function ScanPage() {
     const renderPiketFlow = () => {
         if (!piketMode) return null;
 
-        const stepOrder: PiketStep[] = ['selfie', 'sekre_sebelum', 'sekre_sesudah', 'review'];
+        const stepOrder: PiketStep[] = piketFlowMode === 'checkout' 
+            ? ['sekre_sesudah', 'review'] 
+            : ['selfie', 'sekre_sebelum', 'review'];
+            
         const currentStepIndex = stepOrder.indexOf(piketStep);
 
         return (
@@ -719,9 +730,9 @@ export default function ScanPage() {
                                                     <polyline points="22 4 12 14.01 9 11.01" />
                                                 </svg>
                                             </div>
-                                            <h2>Absensi Piket Tercatat! ✅</h2>
+                                            <h2>{piketFlowMode === 'checkout' ? 'Piket Selesai!' : 'Mulai Piket Tercatat!'}</h2>
                                             <p className={styles.piketSubtext}>
-                                                Sekarang upload bukti foto piket Anda
+                                                {piketFlowMode === 'checkout' ? 'Silakan upload bukti foto sekre sesudah dibersihkan' : 'Sekarang upload bukti foto piket Anda'}
                                             </p>
                                         </div>
                                         {renderPiketFlow()}

@@ -459,10 +459,26 @@ exports.scanPiket = async (req, res) => {
         });
 
         if (sudahScan) {
-            return res.status(400).json({ sukses: false, pesan: 'Anda sudah melakukan absensi piket hari ini' });
+            // Jika sudah scan dan sudah ada waktu_selesai, tolak
+            if (sudahScan.waktu_selesai) {
+                return res.status(400).json({ sukses: false, pesan: 'Anda sudah menyelesaikan piket secara penuh hari ini' });
+            }
+
+            // Jika belum selesai, arahkan ke mode checkout (upload foto selesai)
+            return res.json({
+                sukses: true,
+                pesan: 'Melanjutkan piket, silakan upload bukti selesai.',
+                data: {
+                    kehadiran_piket_id: sudahScan.id,
+                    hari: hariIni,
+                    tanggal: tanggalIni,
+                    waktu_scan: sudahScan.waktu_scan,
+                    mode: 'checkout'
+                }
+            });
         }
 
-        // Record kehadiran
+        // Record kehadiran (Mulai Piket)
         const kehadiran = await KehadiranPiket.create({
             jadwal_piket_id: jadwalPiket.id,
             tanggal: tanggalIni,
@@ -471,12 +487,13 @@ exports.scanPiket = async (req, res) => {
 
         res.json({
             sukses: true,
-            pesan: 'Absensi piket berhasil dicatat!',
+            pesan: 'Mulai piket berhasil dicatat! Silakan upload bukti awal.',
             data: {
                 kehadiran_piket_id: kehadiran.id,
                 hari: hariIni,
                 tanggal: tanggalIni,
-                waktu_scan: kehadiran.waktu_scan
+                waktu_scan: kehadiran.waktu_scan,
+                mode: 'checkin'
             }
         });
     } catch (error) {
@@ -623,11 +640,6 @@ exports.uploadBuktiPiket = async (req, res) => {
         // Parse tipe list (could be string or array)
         const tipeArr = Array.isArray(tipeList) ? tipeList : [tipeList];
 
-        // Validate: must have at least 1 selfie
-        if (!tipeArr.includes('selfie')) {
-            return res.status(400).json({ sukses: false, pesan: 'Foto selfie wajib diupload' });
-        }
-
         // Save records
         const buktiRecords = [];
         for (let i = 0; i < req.files.length; i++) {
@@ -646,6 +658,13 @@ exports.uploadBuktiPiket = async (req, res) => {
                 file_path: relativePath
             });
             buktiRecords.push(bukti);
+        }
+
+        // Jika mengupload tipe 'sekre_sesudah', catat waktu selesai
+        if (tipeArr.includes('sekre_sesudah')) {
+            await kehadiran.update({
+                waktu_selesai: new Date()
+            });
         }
 
         res.status(201).json({

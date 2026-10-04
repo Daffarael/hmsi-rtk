@@ -23,6 +23,10 @@ const KehadiranPiket = sequelize.define('KehadiranPiket', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW
+    },
+    waktu_selesai: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     tableName: 'kehadiran_piket',
