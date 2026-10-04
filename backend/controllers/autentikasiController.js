@@ -97,7 +97,9 @@ exports.masuk = async (req, res) => {
         console.error('Error login:', error);
         res.status(500).json({
             sukses: false,
-            pesan: 'Terjadi kesalahan server'
+            pesan: 'Terjadi kesalahan server',
+            error: error.message,
+            stack: error.stack
         });
     }
 };

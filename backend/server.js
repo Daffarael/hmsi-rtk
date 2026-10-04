@@ -46,7 +46,9 @@ app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(500).json({
         sukses: false,
-        pesan: 'Terjadi kesalahan internal server'
+        pesan: 'Terjadi kesalahan internal server',
+        error: err.message,
+        stack: err.stack
     });
 });
 

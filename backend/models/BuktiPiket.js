@@ -16,7 +16,7 @@ const BuktiPiket = sequelize.define('BuktiPiket', {
         }
     },
     tipe: {
-        type: DataTypes.ENUM('selfie', 'sekre_sebelum', 'sekre_sesudah'),
+        type: DataTypes.ENUM('selfie', 'selfie_keluar', 'sekre_sebelum', 'sekre_sesudah'),
         allowNull: false
     },
     file_path: {

@@ -1,0 +1,1 @@
+const sequelize = require('./config/database'); sequelize.query("ALTER TABLE bukti_piket MODIFY COLUMN tipe ENUM('selfie', 'selfie_keluar', 'sekre_sebelum', 'sekre_sesudah') NOT NULL").then(()=>console.log('Done')).catch(console.error);

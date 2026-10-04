@@ -24,7 +24,7 @@ interface ScanResult {
 interface PhotoItem {
     file: File;
     preview: string;
-    tipe: 'selfie' | 'sekre_sebelum' | 'sekre_sesudah';
+    tipe: 'selfie' | 'selfie_keluar' | 'sekre_sesudah';
 }
 
 // Detect in-app browsers that block camera access
@@ -81,11 +81,11 @@ function getErrorMessage(err: any): string {
     return `Gagal mengakses kamera: ${msg || 'Error tidak diketahui'}. Coba gunakan browser Chrome atau Safari terbaru.`;
 }
 
-type PiketStep = 'selfie' | 'sekre_sebelum' | 'sekre_sesudah' | 'review' | 'uploading' | 'done';
+type PiketStep = 'selfie' | 'selfie_keluar' | 'sekre_sesudah' | 'review' | 'uploading' | 'done';
 
 const PIKET_STEP_LABELS: Record<PiketStep, string> = {
-    selfie: 'Foto Selfie',
-    sekre_sebelum: 'Foto Sekre (Sebelum)',
+    selfie: 'Selfie (Masuk)',
+    selfie_keluar: 'Selfie (Pulang)',
     sekre_sesudah: 'Foto Sekre (Sesudah)',
     review: 'Review & Kirim',
     uploading: 'Mengupload...',
@@ -300,7 +300,7 @@ export default function ScanPage() {
         setPhotos(prev => [...prev, {
             file,
             preview,
-            tipe: piketStep as 'selfie' | 'sekre_sebelum' | 'sekre_sesudah',
+            tipe: piketStep as 'selfie' | 'selfie_keluar' | 'sekre_sesudah',
         }]);
 
         // Reset input
@@ -314,8 +314,8 @@ export default function ScanPage() {
 
     const getStepOrder = (): PiketStep[] => {
         return piketFlowMode === 'checkout'
-            ? ['sekre_sesudah', 'review']
-            : ['selfie', 'sekre_sebelum', 'review'];
+            ? ['selfie_keluar', 'sekre_sesudah', 'review']
+            : ['selfie', 'review'];
     };
 
     const handleNext = () => {
@@ -354,7 +354,7 @@ export default function ScanPage() {
 
     const canProceed = (): boolean => {
         if (piketStep === 'selfie') return hasPhotosForStep('selfie');
-        if (piketStep === 'sekre_sebelum') return hasPhotosForStep('sekre_sebelum');
+        if (piketStep === 'selfie_keluar') return hasPhotosForStep('selfie_keluar');
         if (piketStep === 'sekre_sesudah') return hasPhotosForStep('sekre_sesudah');
         return true;
     };
@@ -388,9 +388,7 @@ export default function ScanPage() {
     const renderPiketFlow = () => {
         if (!piketMode) return null;
 
-        const stepOrder: PiketStep[] = piketFlowMode === 'checkout' 
-            ? ['sekre_sesudah', 'review'] 
-            : ['selfie', 'sekre_sebelum', 'review'];
+        const stepOrder = getStepOrder();
             
         const currentStepIndex = stepOrder.indexOf(piketStep);
 
@@ -413,7 +411,7 @@ export default function ScanPage() {
                                 </span>
                                 <span className={styles.stepLabel}>
                                     {step === 'selfie' ? 'Selfie' :
-                                        step === 'sekre_sebelum' ? 'Sebelum' :
+                                        step === 'selfie_keluar' ? 'Selfie 2' :
                                             step === 'sekre_sesudah' ? 'Sesudah' : 'Kirim'}
                                 </span>
                             </div>
@@ -422,16 +420,16 @@ export default function ScanPage() {
                 )}
 
                 {/* Photo capture steps */}
-                {(piketStep === 'selfie' || piketStep === 'sekre_sebelum' || piketStep === 'sekre_sesudah') && (
+                {(piketStep === 'selfie' || piketStep === 'selfie_keluar' || piketStep === 'sekre_sesudah') && (
                     <div className={styles.captureSection}>
                         <h3 className={styles.stepTitle}>
                             {piketStep === 'selfie' && '📸 Ambil Foto Selfie'}
-                            {piketStep === 'sekre_sebelum' && '🏢 Foto Sekretariat (Sebelum Bersih)'}
+                            {piketStep === 'selfie_keluar' && '🏢 Ambil Foto Selfie (Pulang)'}
                             {piketStep === 'sekre_sesudah' && '✨ Foto Sekretariat (Sesudah Bersih)'}
                         </h3>
                         <p className={styles.stepDesc}>
                             {piketStep === 'selfie' && 'Ambil foto diri Anda sebagai bukti kehadiran piket'}
-                            {piketStep === 'sekre_sebelum' && 'Ambil foto kondisi sekretariat sebelum dibersihkan'}
+                            {piketStep === 'selfie_keluar' && 'Ambil foto diri Anda sebagai bukti selesai piket'}
                             {piketStep === 'sekre_sesudah' && 'Ambil foto kondisi sekretariat setelah dibersihkan'}
                         </p>
 
@@ -515,13 +513,13 @@ export default function ScanPage() {
                         )}
 
                         <div className={styles.reviewGroups}>
-                            {(['selfie', 'sekre_sebelum', 'sekre_sesudah'] as const).map(tipe => {
+                            {(['selfie', 'selfie_keluar', 'sekre_sesudah'] as const).map(tipe => {
                                 const tipePhotos = getPhotosForStep(tipe);
                                 return (
                                     <div key={tipe} className={styles.reviewGroup}>
                                         <h4>
                                             {tipe === 'selfie' && '📸 Selfie'}
-                                            {tipe === 'sekre_sebelum' && '🏢 Sekre (Sebelum)'}
+                                            {tipe === 'selfie_keluar' && '🏢 Sekre (Sebelum)'}
                                             {tipe === 'sekre_sesudah' && '✨ Sekre (Sesudah)'}
                                             <span className={styles.photoCount}>{tipePhotos.length} foto</span>
                                         </h4>
