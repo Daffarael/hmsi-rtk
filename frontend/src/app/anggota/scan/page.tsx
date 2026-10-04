@@ -472,7 +472,7 @@ export default function ScanPage() {
                             style={{ display: 'none' }}
                         />
 
-                        <div className={styles.captureActions} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <div className={styles.captureActions} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
                             {(piketStep === 'selfie' ? getPhotosForStep('selfie').length === 0 : true) && (
                                 <>
                                     <motion.button
