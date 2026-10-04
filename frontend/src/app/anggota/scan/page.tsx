@@ -57,7 +57,7 @@ function getErrorMessage(err: any): string {
     const msg = err?.message || '';
 
     if (name === 'NotAllowedError' || msg.includes('Permission denied') || msg.includes('not allowed')) {
-        return 'Izin kamera ditolak. Buka Pengaturan Browser → Izin Situs → aktifkan Kamera untuk situs ini, lalu refresh halaman.';
+        return 'Izin kamera ditolak. Buka Pengaturan Browser  Izin Situs  aktifkan Kamera untuk situs ini, lalu refresh halaman.';
     }
     if (name === 'NotFoundError' || msg.includes('Requested device not found')) {
         return 'Kamera tidak ditemukan di perangkat ini. Pastikan perangkat Anda memiliki kamera yang berfungsi.';
@@ -113,6 +113,7 @@ export default function ScanPage() {
 
     // Camera capture ref
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
 
     const startScanning = () => {
         setError('');
@@ -407,7 +408,7 @@ export default function ScanPage() {
                                 className={`${styles.stepDot} ${i <= currentStepIndex ? styles.stepActive : ''} ${i < currentStepIndex ? styles.stepDone : ''}`}
                             >
                                 <span className={styles.stepNumber}>
-                                    {i < currentStepIndex ? '✓' : i + 1}
+                                    {i < currentStepIndex ? '' : i + 1}
                                 </span>
                                 <span className={styles.stepLabel}>
                                     {step === 'selfie' ? 'Selfie' :
@@ -423,9 +424,9 @@ export default function ScanPage() {
                 {(piketStep === 'selfie' || piketStep === 'selfie_keluar' || piketStep === 'sekre_sesudah') && (
                     <div className={styles.captureSection}>
                         <h3 className={styles.stepTitle}>
-                            {piketStep === 'selfie' && '📸 Ambil Foto Selfie'}
-                            {piketStep === 'selfie_keluar' && '🏢 Ambil Foto Selfie (Pulang)'}
-                            {piketStep === 'sekre_sesudah' && '✨ Foto Sekretariat (Sesudah Bersih)'}
+                            {piketStep === 'selfie' && ' Ambil Foto Selfie'}
+                            {piketStep === 'selfie_keluar' && ' Ambil Foto Selfie (Pulang)'}
+                            {piketStep === 'sekre_sesudah' && ' Foto Sekretariat (Sesudah Bersih)'}
                         </h3>
                         <p className={styles.stepDesc}>
                             {piketStep === 'selfie' && 'Ambil foto diri Anda sebagai bukti kehadiran piket'}
@@ -445,7 +446,7 @@ export default function ScanPage() {
                                                 className={styles.removePhotoBtn}
                                                 onClick={() => removePhoto(globalIndex)}
                                             >
-                                                ✕
+                                                
                                             </button>
                                         </div>
                                     );
@@ -462,21 +463,44 @@ export default function ScanPage() {
                             onChange={handlePhotoCapture}
                             style={{ display: 'none' }}
                         />
+                        {/* Gallery upload button */}
+                        <input
+                            ref={galleryInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoCapture}
+                            style={{ display: 'none' }}
+                        />
 
-                        <div className={styles.captureActions}>
+                        <div className={styles.captureActions} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {(piketStep === 'selfie' ? getPhotosForStep('selfie').length === 0 : true) && (
-                                <motion.button
-                                    className={`btn btn-primary ${styles.captureBtn}`}
-                                    onClick={() => fileInputRef.current?.click()}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                                        <circle cx="12" cy="13" r="4" />
-                                    </svg>
-                                    {getPhotosForStep(piketStep).length > 0 ? 'Tambah Foto' : 'Ambil Foto'}
-                                </motion.button>
+                                <>
+                                    <motion.button
+                                        className={`btn btn-primary ${styles.captureBtn}`}
+                                        onClick={() => fileInputRef.current?.click()}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                            <circle cx="12" cy="13" r="4" />
+                                        </svg>
+                                        {getPhotosForStep(piketStep).length > 0 ? 'Tambah Foto' : 'Kamera'}
+                                    </motion.button>
+                                    <motion.button
+                                        className={`btn btn-secondary ${styles.captureBtn}`}
+                                        onClick={() => galleryInputRef.current?.click()}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <polyline points="21 15 16 10 5 21" />
+                                        </svg>
+                                        Galeri
+                                    </motion.button>
+                                </>
                             )}
                         </div>
 
@@ -484,7 +508,7 @@ export default function ScanPage() {
                         <div className={styles.stepNav}>
                             {piketStep !== 'selfie' && (
                                 <button className="btn btn-secondary" onClick={goToPrevStep}>
-                                    ← Kembali
+                                     Kembali
                                 </button>
                             )}
                             {canProceed() && (
@@ -494,7 +518,7 @@ export default function ScanPage() {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                 >
-                                    Lanjut →
+                                    Lanjut 
                                 </motion.button>
                             )}
                         </div>
@@ -504,7 +528,7 @@ export default function ScanPage() {
                 {/* Review step */}
                 {piketStep === 'review' && (
                     <div className={styles.reviewSection}>
-                        <h3 className={styles.stepTitle}>📋 Review Bukti Piket</h3>
+                        <h3 className={styles.stepTitle}> Review Bukti Piket</h3>
 
                         {uploadError && (
                             <div className={styles.errorBox}>
@@ -518,9 +542,9 @@ export default function ScanPage() {
                                 return (
                                     <div key={tipe} className={styles.reviewGroup}>
                                         <h4>
-                                            {tipe === 'selfie' && '📸 Selfie'}
-                                            {tipe === 'selfie_keluar' && '🏢 Sekre (Sebelum)'}
-                                            {tipe === 'sekre_sesudah' && '✨ Sekre (Sesudah)'}
+                                            {tipe === 'selfie' && ' Selfie'}
+                                            {tipe === 'selfie_keluar' && ' Selfie (Pulang)'}
+                                            {tipe === 'sekre_sesudah' && ' Sekre (Sesudah)'}
                                             <span className={styles.photoCount}>{tipePhotos.length} foto</span>
                                         </h4>
                                         <div className={styles.photoGrid}>
@@ -537,7 +561,7 @@ export default function ScanPage() {
 
                         <div className={styles.stepNav}>
                             <button className="btn btn-secondary" onClick={goToPrevStep}>
-                                ← Kembali
+                                 Kembali
                             </button>
                             <motion.button
                                 className="btn btn-primary"
@@ -545,7 +569,7 @@ export default function ScanPage() {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                ✅ Kirim Bukti
+                                 Kirim Bukti
                             </motion.button>
                         </div>
                     </div>
@@ -568,7 +592,7 @@ export default function ScanPage() {
                                 <polyline points="22 4 12 14.01 9 11.01" />
                             </svg>
                         </div>
-                        <h2>Bukti Piket Berhasil Dikirim! 🎉</h2>
+                        <h2>Bukti Piket Berhasil Dikirim! </h2>
                         <p>Foto selfie dan foto sekretariat telah diupload</p>
                         <motion.button
                             className="btn btn-primary btn-lg w-full mt-4"
@@ -615,8 +639,8 @@ export default function ScanPage() {
                     </p>
                     <p className={styles.warningHint}>
                         {isIOS()
-                            ? 'Tap ikon ⋯ di bawah → pilih "Buka di Safari"'
-                            : 'Tap ikon ⋮ di kanan atas → pilih "Buka di Chrome"'}
+                            ? 'Tap ikon  di bawah  pilih "Buka di Safari"'
+                            : 'Tap ikon  di kanan atas  pilih "Buka di Chrome"'}
                     </p>
                     <button
                         className={styles.copyLinkBtn}
@@ -718,7 +742,7 @@ export default function ScanPage() {
                     >
                         {result.sukses ? (
                             <>
-                                {/* Piket scan success → show photo flow */}
+                                {/* Piket scan success  show photo flow */}
                                 {piketMode ? (
                                     <div className={styles.resultSuccess}>
                                         <div className={styles.piketScanSuccess}>
@@ -744,7 +768,7 @@ export default function ScanPage() {
                                                 <polyline points="22 4 12 14.01 9 11.01" />
                                             </svg>
                                         </div>
-                                        <h2>Kehadiran Tercatat! 🎉</h2>
+                                        <h2>Kehadiran Tercatat! </h2>
                                         <div className={styles.resultInfo}>
                                             {result.data?.rapat && (
                                                 <div className={styles.infoItem}>
@@ -819,3 +843,5 @@ export default function ScanPage() {
         </motion.div>
     );
 }
+
+

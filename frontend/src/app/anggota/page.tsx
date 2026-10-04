@@ -76,7 +76,7 @@ export default function AnggotaDashboard() {
             >
                 <h1>
                     <span className={styles.gradientText}>Halo, {pengguna?.nama_panggilan}!</span>
-                    <span className={styles.emoji}>👋</span>
+                    <span className={styles.emoji}></span>
                 </h1>
                 <p>Selamat datang di sistem absensi HMSI</p>
             </motion.div>
@@ -89,7 +89,7 @@ export default function AnggotaDashboard() {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.15 }}
                 >
-                    <h2 className={styles.reminderTitle}>🔔 Pengingat</h2>
+                    <h2 className={styles.reminderTitle}> Pengingat</h2>
                     <div className={styles.reminderList}>
                         {pengingat.map((item, index) => (
                             <div
@@ -227,3 +227,4 @@ export default function AnggotaDashboard() {
         </motion.div>
     );
 }
+
