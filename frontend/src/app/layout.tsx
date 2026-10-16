@@ -10,6 +10,14 @@ export const metadata: Metadata = {
     title: 'HMSI Absensi - Himpunan Mahasiswa Sistem Informasi Unand',
     description: 'Sistem Absensi QR untuk Himpunan Mahasiswa Sistem Informasi Universitas Andalas',
     keywords: ['HMSI', 'Absensi', 'QR Code', 'Unand', 'Sistem Informasi'],
+    icons: {
+        icon: [
+            { url: '/images/Logo-HMSI.png', href: '/images/Logo-HMSI.png' },
+            { url: '/favicon.ico', href: '/favicon.ico' }
+        ],
+        shortcut: '/images/Logo-HMSI.png',
+        apple: '/images/Logo-HMSI.png',
+    },
 };
 
 export default function RootLayout({
