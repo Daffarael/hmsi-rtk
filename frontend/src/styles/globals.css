@@ -570,6 +570,17 @@ input[type="time"].input-field:focus::-webkit-calendar-picker-indicator {
   padding: 1rem;
 }
 
+@keyframes modalSlideDown {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 .modal {
   background: var(--putih);
   border-radius: var(--radius-2xl);
@@ -578,6 +589,8 @@ input[type="time"].input-field:focus::-webkit-calendar-picker-indicator {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  animation: modalSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .modal-header {
