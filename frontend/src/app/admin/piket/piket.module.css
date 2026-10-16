@@ -72,7 +72,6 @@
 }
 
 .tab.active svg {
-    animation: bounceIcon 0.6s ease-in-out;
 }
 
 @keyframes bounceIcon {
@@ -114,8 +113,7 @@
 
 /* Hari Card Premium */
 .hariCard {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(249, 115, 22, 0.08);
@@ -290,7 +288,7 @@
 
 /* Kehadiran Section */
 .kehadiranSection {
-    background: rgba(255, 255, 255, 0.95);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(249, 115, 22, 0.08);
@@ -460,8 +458,7 @@
 
 /* Empty State */
 .emptyState {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
@@ -472,7 +469,6 @@
 .emptyState svg {
     color: var(--abu-300);
     margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {

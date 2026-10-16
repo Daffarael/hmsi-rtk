@@ -72,8 +72,7 @@
 
 /* Premium Table Container - Same as Rapat */
 .tableWrapper {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     border: 1px solid rgba(249, 115, 22, 0.08);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
@@ -220,8 +219,7 @@ tr:hover .skorBadge {
 
 /* Empty State - Same as Rapat */
 .emptyState {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
@@ -238,7 +236,6 @@ tr:hover .skorBadge {
 .emptyState svg {
     color: var(--utama-300);
     margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {

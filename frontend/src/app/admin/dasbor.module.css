@@ -20,7 +20,6 @@
     font-size: 1.875rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
-    animation: floatTitle 5s ease-in-out infinite;
     position: relative;
     display: flex;
     align-items: center;
@@ -46,7 +45,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: premiumShimmer 4s ease-in-out infinite;
     filter: drop-shadow(0 4px 12px rgba(249, 115, 22, 0.15));
     letter-spacing: -0.02em;
 }
@@ -60,7 +58,6 @@
     height: 3px;
     background: linear-gradient(90deg, var(--utama-400), var(--utama-600), var(--utama-400));
     border-radius: 3px;
-    animation: lineExpand 2s ease-out forwards, linePulse 2s ease-in-out infinite 2s;
 }
 
 @keyframes premiumShimmer {
@@ -131,7 +128,6 @@
     content: '✦';
     margin-right: 8px;
     color: var(--utama-400);
-    animation: sparkle 1.5s ease-in-out infinite;
     display: inline-block;
 }
 
@@ -159,7 +155,6 @@
 /* Wave Emoji Ultra Premium */
 .waveEmoji {
     display: inline-block;
-    animation: wave 0.8s ease-in-out infinite, emojiGlow 2s ease-in-out infinite;
     transform-origin: 70% 70%;
     -webkit-text-fill-color: initial;
     background: none;
@@ -204,8 +199,7 @@
 }
 
 .statCard {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 1.5rem;
     display: flex;
@@ -280,7 +274,6 @@
     border-radius: var(--radius-xl);
     background: inherit;
     opacity: 0.5;
-    animation: iconPulse 2.5s ease-in-out infinite;
 }
 
 @keyframes iconPulse {
@@ -300,7 +293,6 @@
 .statCard:hover .statIcon {
     transform: scale(1.1);
     box-shadow: 0 8px 20px rgba(249, 115, 22, 0.25);
-    animation: bounceBox 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceBox {
@@ -322,7 +314,6 @@
 }
 
 .statCard:hover .statIcon svg {
-    animation: bounceSvg 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceSvg {
@@ -362,7 +353,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmerText 2s ease-in-out infinite, floatValue 1s ease-in-out infinite;
     filter: drop-shadow(0 2px 8px rgba(249, 115, 22, 0.3));
 }
 
@@ -403,7 +393,6 @@
 
 .statCard:hover .statLabel {
     color: var(--utama-600);
-    animation: pulseLabel 1.2s ease-in-out infinite;
     letter-spacing: 0.02em;
 }
 
@@ -423,8 +412,7 @@
 
 /* Section - Glass Card */
 .section {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 1.5rem;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
@@ -586,7 +574,6 @@
 .emptyState svg {
     margin-bottom: 1rem;
     opacity: 0.5;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {

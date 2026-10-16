@@ -147,8 +147,7 @@ tr:hover .username {
 
 /* Empty State - Same as Rapat */
 .emptyState {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
@@ -165,7 +164,6 @@ tr:hover .username {
 .emptyState svg {
     color: var(--utama-300);
     margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {

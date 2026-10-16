@@ -55,7 +55,6 @@
             transparent,
             rgba(249, 115, 22, 0.05),
             transparent);
-    animation: tabsShimmer 4s ease-in-out infinite;
 }
 
 @keyframes tabsShimmer {
@@ -105,7 +104,7 @@
 }
 
 .tabActive {
-    background: rgba(255, 255, 255, 0.95);
+    background: #FFFFFF;
     color: var(--utama-500);
     box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
     transform: scale(1.02);
@@ -125,8 +124,7 @@
 
 /* Glass Table Container - Premium */
 .tableContainer {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(249, 115, 22, 0.08);
@@ -229,7 +227,6 @@
 
 .exportBtn:hover svg {
     transform: scale(1.15);
-    animation: bounceIcon 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceIcon {

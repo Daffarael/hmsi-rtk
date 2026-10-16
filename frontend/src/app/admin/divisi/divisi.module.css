@@ -42,8 +42,7 @@
 
 /* Premium Card Style - Ultra Edition */
 .card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
@@ -126,7 +125,6 @@
     inset: 0;
     border-radius: var(--radius-xl);
     background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
-    animation: iconPulse 2.5s ease-in-out infinite;
 }
 
 @keyframes iconPulse {
@@ -146,7 +144,6 @@
 .card:hover .cardIcon {
     transform: scale(1.1);
     box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
-    animation: bounceIcon 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceIcon {
@@ -168,7 +165,6 @@
 }
 
 .card:hover .cardIcon svg {
-    animation: bounceSvg 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceSvg {
@@ -199,7 +195,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmerTitle 2s ease-in-out infinite;
 }
 
 @keyframes shimmerTitle {
@@ -269,7 +264,6 @@
 }
 
 .actionBtn:hover svg {
-    animation: bounceBtn 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceBtn {
@@ -295,8 +289,7 @@
 }
 
 .emptyState {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
@@ -307,7 +300,6 @@
 .emptyState svg {
     color: var(--abu-300);
     margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {

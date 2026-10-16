@@ -43,8 +43,7 @@
 
 /* Ultra Premium Card - Same as Rapat */
 .kegiatanCard {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(249, 115, 22, 0.08);
@@ -171,7 +170,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmerTitle 2s ease-in-out infinite;
 }
 
 @keyframes shimmerTitle {
@@ -200,7 +198,6 @@
 
 .kegiatanCard:hover .kegiatanLokasi svg {
     color: var(--utama-500);
-    animation: bounceIcon 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceIcon {
@@ -236,7 +233,6 @@
 
 .kegiatanCard:hover .kegiatanStats span svg {
     color: var(--utama-500);
-    animation: bounceIcon 0.8s ease-in-out infinite;
 }
 
 .kegiatanCard:hover .kegiatanStats span {
@@ -302,7 +298,7 @@
     height: 38px;
     border-radius: var(--radius-lg);
     border: none;
-    background: rgba(255, 255, 255, 0.9);
+    background: #FFFFFF;
     color: var(--abu-600);
     cursor: pointer;
     display: flex;
@@ -339,7 +335,6 @@
 }
 
 .moreBtn:hover svg {
-    animation: bounceBtn 0.8s ease-in-out infinite;
 }
 
 @keyframes bounceBtn {
@@ -366,8 +361,7 @@
 
 /* Empty State Premium */
 .emptyState {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
@@ -384,7 +378,6 @@
 .emptyState svg {
     color: var(--utama-300);
     margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
