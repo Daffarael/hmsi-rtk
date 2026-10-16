@@ -295,7 +295,7 @@ class ApiClient {
 
     // Anggota: Scan piket QR
     async scanPiket(kode_qr: string, tanggal_ganti?: string) {
-        return this.request<{ kehadiran_piket_id?: number; hari?: string; perlu_tanggal_ganti?: boolean }>('/piket/scan', {
+        return this.request<{ kehadiran_piket_id?: number; hari?: string; perlu_tanggal_ganti?: boolean; mode?: 'checkin' | 'checkout' | string }>('/piket/scan', {
             method: 'POST',
             body: JSON.stringify({ kode_qr, tanggal_ganti }),
         });
