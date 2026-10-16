@@ -8,16 +8,16 @@
     overflow: hidden;
 }
 
-/* High-Performance Ambient Background */
+/* High-Performance Ambient Background (Static gradient, 0 CPU/GPU overhead) */
 .bgAnimation {
     position: fixed;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
     background: 
-        radial-gradient(circle at 85% 15%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
-        radial-gradient(circle at 10% 80%, rgba(253, 186, 116, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 60% 60%, rgba(249, 115, 22, 0.12) 0%, transparent 30%);
+        radial-gradient(circle at 85% 15%, rgba(251, 146, 60, 0.20) 0%, transparent 45%),
+        radial-gradient(circle at 10% 80%, rgba(253, 186, 116, 0.22) 0%, transparent 40%),
+        radial-gradient(circle at 60% 60%, rgba(249, 115, 22, 0.10) 0%, transparent 30%);
 }
 
 .bgCircle1,
@@ -26,48 +26,33 @@
     display: none;
 }
 
-/* Login Card */
+/* Hardware-Accelerated 60/120fps CSS Appear Keyframe */
+@keyframes cardAppear {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 18px, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+/* Login Card (Solid pure white, zero backdrop-filter blur paint penalty) */
 .loginCard {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #FFFFFF;
     border-radius: var(--radius-2xl);
     box-shadow:
-        0 20px 40px -12px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(255, 255, 255, 0.8),
-        0 0 40px -15px rgba(249, 115, 22, 0.12);
+        0 20px 45px -15px rgba(0, 0, 0, 0.08),
+        0 4px 12px -2px rgba(0, 0, 0, 0.03),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
     padding: 2.5rem;
     width: 100%;
     max-width: 420px;
     position: relative;
     z-index: 10;
-}
-
-.loginCard::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: calc(var(--radius-2xl) + 2px);
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), transparent, rgba(249, 115, 22, 0.2));
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.loginCard:hover::before {
-    opacity: 1;
-}
-
-@keyframes cardFloat {
-
-    0%,
-    100% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-8px);
-    }
+    animation: cardAppear 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
 }
 
 .logoContainer {
@@ -127,7 +112,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color var(--transition-fast);
+    transition: color 0.15s ease;
 }
 
 .togglePassword:hover {
@@ -136,6 +121,15 @@
 
 .submitBtn {
     margin-top: 0.5rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.submitBtn:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .btnLoader {
@@ -167,8 +161,8 @@
     }
 
     .logoImage {
-        width: 80px;
-        height: 80px;
+        width: 140px;
+        height: 140px;
     }
 
     .title {

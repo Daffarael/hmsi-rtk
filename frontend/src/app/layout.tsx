@@ -12,11 +12,12 @@ export const metadata: Metadata = {
     keywords: ['HMSI', 'Absensi', 'QR Code', 'Unand', 'Sistem Informasi'],
     icons: {
         icon: [
-            { url: '/images/Logo-HMSI.png', href: '/images/Logo-HMSI.png' },
-            { url: '/favicon.ico', href: '/favicon.ico' }
+            { url: '/images/logo-tab.png', sizes: '32x32', type: 'image/png' },
+            { url: '/images/logo-192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/favicon.ico', sizes: 'any' }
         ],
-        shortcut: '/images/Logo-HMSI.png',
-        apple: '/images/Logo-HMSI.png',
+        shortcut: '/images/logo-tab.png',
+        apple: '/images/logo-192.png',
     },
 };
 

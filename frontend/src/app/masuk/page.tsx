@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import styles from './masuk.module.css';
 
@@ -55,26 +54,12 @@ export default function MasukPage() {
 
     return (
         <div className={styles.container}>
-            {/* Animated background */}
-            <div className={styles.bgAnimation}>
-                <div className={styles.bgCircle1}></div>
-                <div className={styles.bgCircle2}></div>
-                <div className={styles.bgCircle3}></div>
-            </div>
+            {/* Ambient static gradient background */}
+            <div className={styles.bgAnimation}></div>
 
-            <motion.div
-                className={styles.loginCard}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
+            <div className={styles.loginCard}>
                 {/* Logo */}
-                <motion.div
-                    className={styles.logoContainer}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-                >
+                <div className={styles.logoContainer}>
                     <img
                         src="/images/Logo-HMSI.png"
                         alt="HMSI"
@@ -83,27 +68,17 @@ export default function MasukPage() {
                     <h1 className={`${styles.title} gradient-text`}>Sistem Absensi</h1>
                     <p className={styles.subtitle}>Himpunan Mahasiswa Sistem Informasi</p>
                     <p className={styles.university}>Universitas Andalas</p>
-                </motion.div>
+                </div>
 
                 {/* Form */}
-                <motion.form
-                    onSubmit={handleSubmit}
-                    className={styles.form}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                >
+                <form onSubmit={handleSubmit} className={styles.form}>
                     {error && (
-                        <motion.div
-                            className="alert alert-error"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                        >
+                        <div className="alert alert-error">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                             </svg>
                             {error}
-                        </motion.div>
+                        </div>
                     )}
 
                     <div className="input-group">
@@ -116,6 +91,7 @@ export default function MasukPage() {
                             onChange={(e) => setUsername(e.target.value)}
                             required
                             disabled={isLoading}
+                            autoComplete="username"
                         />
                     </div>
 
@@ -130,12 +106,14 @@ export default function MasukPage() {
                                 onChange={(e) => setKataSandi(e.target.value)}
                                 required
                                 disabled={isLoading}
+                                autoComplete="current-password"
                             />
                             <button
                                 type="button"
                                 className={styles.togglePassword}
                                 onClick={() => setShowPassword(!showPassword)}
                                 tabIndex={-1}
+                                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                             >
                                 {showPassword ? (
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -152,12 +130,10 @@ export default function MasukPage() {
                         </div>
                     </div>
 
-                    <motion.button
+                    <button
                         type="submit"
                         className={`btn btn-primary btn-lg w-full ${styles.submitBtn}`}
                         disabled={isLoading}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                     >
                         {isLoading ? (
                             <>
@@ -174,19 +150,14 @@ export default function MasukPage() {
                                 Masuk
                             </>
                         )}
-                    </motion.button>
-                </motion.form>
+                    </button>
+                </form>
 
                 {/* Footer */}
-                <motion.p
-                    className={styles.footer}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                >
+                <p className={styles.footer}>
                     &copy; {new Date().getFullYear()} HMSI Universitas Andalas
-                </motion.p>
-            </motion.div>
+                </p>
+            </div>
         </div>
     );
 }

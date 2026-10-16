@@ -230,41 +230,29 @@ a:hover {
 
 .input-field {
   width: 100%;
-  padding: 0.9375rem 1.125rem;
+  padding: 0.875rem 1rem;
   font-size: 0.9375rem;
-  border: 2px solid var(--abu-200);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 247, 237, 0.3) 100%);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1.5px solid var(--abu-300);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  color: var(--abu-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
   position: relative;
 }
 
 .input-field::placeholder {
   color: var(--abu-400);
-  transition: all 0.3s ease;
 }
 
 .input-field:hover {
-  border-color: var(--utama-300);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.1);
-}
-
-.input-field:hover::placeholder {
-  color: var(--abu-500);
+  border-color: var(--utama-400);
 }
 
 .input-field:focus {
   border-color: var(--utama-500);
-  transform: translateY(-2px);
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 8px 24px rgba(249, 115, 22, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 237, 213, 0.4) 100%);
-}
-
-.input-field:focus::placeholder {
-  opacity: 0.5;
-  transform: translateX(5px);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  background: #FFFFFF;
 }
 
 /* Textarea specific */
