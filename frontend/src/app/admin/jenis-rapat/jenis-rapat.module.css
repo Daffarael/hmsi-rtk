@@ -16,7 +16,10 @@
     font-size: 1.5rem;
     font-weight: 800;
     margin-bottom: 0.25rem;
-    color: var(--abu-900);
+    background: linear-gradient(135deg, var(--abu-900), var(--abu-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .header p {
@@ -31,49 +34,33 @@
     min-height: 300px;
 }
 
-@keyframes contentSlideDown {
-    0% {
-        opacity: 0;
-        transform: translate3d(0, -14px, 0);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
-    animation: contentSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    will-change: transform, opacity;
 }
 
-/* Card Style - Crisp High-Performance */
+/* Card Style - Same Clean & Smooth Pattern as Anggota */
 .card {
     background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid var(--abu-200);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    transition: all 0.4s ease;
     display: flex;
     flex-direction: column;
-    animation: contentSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    will-change: transform, opacity;
 }
 
 .card:hover {
-    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.10);
-    border-color: var(--utama-300);
-    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
 }
 
 .cardIcon {
     width: 48px;
     height: 48px;
-    background: var(--utama-50);
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
@@ -105,45 +92,50 @@
 }
 
 .actionBtn {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--abu-200);
-    background: #FFFFFF;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-lg);
+    border: none;
+    background: linear-gradient(135deg, var(--abu-100), var(--abu-50));
     color: var(--abu-600);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .actionBtn:hover {
-    background: var(--utama-50);
+    background: linear-gradient(135deg, var(--utama-100), var(--utama-50));
     color: var(--utama-600);
-    border-color: var(--utama-300);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
 .deleteBtn:hover {
-    background: var(--gagal-light);
+    background: linear-gradient(135deg, var(--gagal-light), rgba(239, 68, 68, 0.08));
     color: var(--gagal);
-    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
-/* Empty State */
+/* Empty State - Same as Anggota */
 .emptyState {
     background: #FFFFFF;
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--abu-200);
-    animation: contentSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    will-change: transform, opacity;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(249, 115, 22, 0.08);
+    transition: all 0.4s ease;
+}
+
+.emptyState:hover {
+    box-shadow: 0 16px 40px rgba(249, 115, 22, 0.1);
+    transform: translateY(-4px);
 }
 
 .emptyState svg {
-    color: var(--utama-400);
+    color: var(--utama-300);
     margin-bottom: 1rem;
 }
 

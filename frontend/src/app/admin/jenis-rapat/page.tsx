@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import styles from './jenis-rapat.module.css';
 
@@ -77,29 +78,48 @@ export default function JenisRapatPage() {
     };
 
     return (
-        <div className={styles.container}>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.container}
+        >
             <div className={styles.header}>
                 <div>
                     <h1>Kelola Jenis Rapat</h1>
                     <p>Tambah dan kelola kategori jenis rapat</p>
                 </div>
-                <button className="btn btn-primary" onClick={openAddModal}>
+                <motion.button
+                    className="btn btn-primary"
+                    onClick={openAddModal}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                     Tambah Jenis
-                </button>
+                </motion.button>
             </div>
 
             {loading ? (
-                <div className={styles.loadingContainer}><div className="loader"></div></div>
+                <div className={styles.loadingContainer}>
+                    <div className="loader"></div>
+                </div>
             ) : jenisRapat.length > 0 ? (
                 <div className={styles.grid}>
-                    {jenisRapat.map((j) => (
-                        <div key={j.id} className={styles.card}>
+                    {jenisRapat.map((j, index) => (
+                        <motion.div
+                            key={j.id}
+                            className={styles.card}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                        >
                             <div className={styles.cardIcon}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" />
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                    <line x1="7" y1="7" x2="7.01" y2="7" />
                                 </svg>
                             </div>
                             <h3>{j.nama}</h3>
@@ -113,59 +133,79 @@ export default function JenisRapatPage() {
                                 </button>
                                 <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleDelete(j.id, j.nama)} title="Hapus">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             ) : (
                 <div className={styles.emptyState}>
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" />
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                        <line x1="7" y1="7" x2="7.01" y2="7" />
                     </svg>
                     <p>Belum ada jenis rapat</p>
-                    <button className="btn btn-primary" onClick={openAddModal}>Tambah Jenis Rapat</button>
+                    <button className="btn btn-primary" onClick={openAddModal}>
+                        Tambah Jenis Rapat
+                    </button>
                 </div>
             )}
 
-            {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header"><h3>{editData ? 'Edit Jenis Rapat' : 'Tambah Jenis Rapat'}</h3></div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                                {error && <div className="alert alert-error mb-4">{error}</div>}
-                                <div className="input-group">
-                                    <label className="input-label">Nama Jenis Rapat *</label>
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        value={formData.nama}
-                                        onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                                        required
-                                        autoFocus
-                                    />
-                                </div>
-                                <div className="input-group">
-                                    <label className="input-label">Deskripsi</label>
-                                    <textarea
-                                        className="input-field"
-                                        rows={3}
-                                        value={formData.deskripsi}
-                                        onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                                    />
-                                </div>
+            <AnimatePresence>
+                {showModal && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowModal(false)}
+                    >
+                        <motion.div
+                            className="modal"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="modal-header">
+                                <h3>{editData ? 'Edit Jenis Rapat' : 'Tambah Jenis Rapat'}</h3>
                             </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
-                                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? 'Menyimpan...' : editData ? 'Perbarui' : 'Tambah'}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+                            <form onSubmit={handleSubmit}>
+                                <div className="modal-body">
+                                    {error && <div className="alert alert-error mb-4">{error}</div>}
+                                    <div className="input-group">
+                                        <label className="input-label">Nama Jenis Rapat *</label>
+                                        <input
+                                            type="text"
+                                            className="input-field"
+                                            value={formData.nama}
+                                            onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Deskripsi</label>
+                                        <textarea
+                                            className="input-field"
+                                            rows={3}
+                                            value={formData.deskripsi}
+                                            onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
+                                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? 'Menyimpan...' : editData ? 'Perbarui' : 'Tambah'}</button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 }

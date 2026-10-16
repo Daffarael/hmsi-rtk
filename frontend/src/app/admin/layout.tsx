@@ -185,9 +185,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 {/* Content */}
                 <main className={styles.content}>
-                    <div key={pathname} className={styles.pageTransition}>
-                        {children}
-                    </div>
+                    {children}
                 </main>
             </div>
 
