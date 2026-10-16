@@ -12,52 +12,15 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
+    background: 
+        radial-gradient(circle at 85% 15%, rgba(209, 250, 229, 0.4) 0%, transparent 45%),
+        radial-gradient(circle at 10% 80%, rgba(254, 215, 170, 0.3) 0%, transparent 40%);
 }
 
-.bgCircle1 {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background: linear-gradient(135deg, var(--sukses-light), var(--utama-100));
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    top: -150px;
-    right: -150px;
-    animation: float1 20s ease-in-out infinite;
-}
-
+.bgCircle1,
 .bgCircle2 {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, var(--utama-100), var(--utama-200));
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    bottom: -100px;
-    left: -100px;
-    animation: float2 15s ease-in-out infinite;
+    display: none;
 }
-
-@keyframes float1 {
-
-    0%,
-    100% {
-        transform: translate(0, 0);
-    }
-
-    50% {
-        transform: translate(-30px, 30px);
-    }
-}
-
-@keyframes float2 {
-
-    0%,
-    100% {
-        transform: translate(0, 0);
-    }
 
     50% {
         transform: translate(30px, -30px);

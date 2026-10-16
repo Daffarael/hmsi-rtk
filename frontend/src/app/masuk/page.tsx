@@ -75,12 +75,10 @@ export default function MasukPage() {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
                 >
-                    <motion.img
+                    <img
                         src="/images/Logo-HMSI.png"
                         alt="HMSI"
                         className={styles.logoImage}
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     />
                     <h1 className={`${styles.title} gradient-text`}>Sistem Absensi</h1>
                     <p className={styles.subtitle}>Himpunan Mahasiswa Sistem Informasi</p>

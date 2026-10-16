@@ -8,185 +8,22 @@
     overflow: hidden;
 }
 
-/* Animated Background - Antigravity Style */
+/* High-Performance Ambient Background */
 .bgAnimation {
     position: fixed;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
+    background: 
+        radial-gradient(circle at 85% 15%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
+        radial-gradient(circle at 10% 80%, rgba(253, 186, 116, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 60% 60%, rgba(249, 115, 22, 0.12) 0%, transparent 30%);
 }
 
 .bgCircle1,
 .bgCircle2,
 .bgCircle3 {
-    position: absolute;
-    filter: blur(50px);
-    opacity: 0.6;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    pointer-events: none;
-}
-
-.bgCircle1 {
-    width: 450px;
-    height: 450px;
-    background: radial-gradient(circle, var(--utama-300), var(--utama-400));
-    top: -120px;
-    right: -120px;
-    border-radius: 50%;
-    animation: floatBlob1 20s ease-in-out infinite;
-}
-
-.bgCircle2 {
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, var(--utama-200), var(--utama-300));
-    bottom: -60px;
-    left: -60px;
-    border-radius: 50%;
-    animation: floatBlob2 18s ease-in-out infinite;
-}
-
-.bgCircle3 {
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle, #ff6b35, var(--utama-400));
-    top: 40%;
-    left: 60%;
-    border-radius: 50%;
-    animation: pulse3 6s ease-in-out infinite;
-}
-
-@keyframes morphBlob1 {
-
-    0%,
-    100% {
-        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    }
-
-    50% {
-        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-    }
-}
-
-@keyframes morphBlob2 {
-
-    0%,
-    100% {
-        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    }
-
-    50% {
-        border-radius: 60% 40% 30% 70% / 60% 30% 50% 70%;
-    }
-}
-
-@keyframes morphBlob3 {
-
-    0%,
-    100% {
-        border-radius: 50% 50% 30% 70% / 50% 40% 60% 50%;
-    }
-
-    50% {
-        border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
-    }
-}
-
-@keyframes floatBlob1 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    25% {
-        transform: translate(-30px, 30px) scale(1.05);
-    }
-
-    50% {
-        transform: translate(-60px, 0) scale(0.95);
-    }
-
-    75% {
-        transform: translate(-30px, -30px) scale(1.02);
-    }
-}
-
-@keyframes floatBlob2 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(40px, -20px) scale(1.08);
-    }
-
-    66% {
-        transform: translate(-20px, 40px) scale(0.92);
-    }
-}
-
-@keyframes pulse3 {
-
-    0%,
-    100% {
-        opacity: 0.6;
-    }
-
-    50% {
-        opacity: 0.9;
-    }
-}
-
-@keyframes float1 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) rotate(0deg);
-    }
-
-    25% {
-        transform: translate(-50px, 50px) rotate(90deg);
-    }
-
-    50% {
-        transform: translate(-100px, 0) rotate(180deg);
-    }
-
-    75% {
-        transform: translate(-50px, -50px) rotate(270deg);
-    }
-}
-
-@keyframes float2 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(50px, -30px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-30px, 50px) scale(0.9);
-    }
-}
-
-@keyframes float3 {
-
-    0%,
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-    }
-
-    50% {
-        transform: translate(-50%, -50%) scale(1.2);
-    }
+    display: none;
 }
 
 /* Login Card */
