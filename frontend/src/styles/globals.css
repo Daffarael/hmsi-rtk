@@ -77,10 +77,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Orange Native Cursor (Universal) */
+/* Orange Native Cursor */
 @media (min-width: 1024px) {
-  *, *::before, *::after {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M4 2.5l14.2 13.5-6.9.7 4 8.5-2.6 1.2-4-8.5-5.5 5.5z" fill="%23F97316" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>') 4 2, auto !important;
+  html, body {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M4 2.5l14.2 13.5-6.9.7 4 8.5-2.6 1.2-4-8.5-5.5 5.5z" fill="%23F97316" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>') 4 2, auto;
   }
 }
 
