@@ -9,6 +9,9 @@ const routes = require('./routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust reverse proxy (Railway, Render, etc.)
+app.set('trust proxy', 1);
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads', 'piket');
 if (!fs.existsSync(uploadsDir)) {
