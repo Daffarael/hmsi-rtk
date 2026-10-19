@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const { sequelize } = require('./models');
 const routes = require('./routes');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,8 +31,8 @@ app.use(cors({
     },
     credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -46,12 +47,32 @@ app.get('/health', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
+    // Tangani error multer
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({
+                sukses: false,
+                pesan: 'Ukuran foto terlalu besar. Maksimal 20MB per foto.'
+            });
+        }
+        return res.status(400).json({
+            sukses: false,
+            pesan: `Gagal upload foto: ${err.message}`
+        });
+    }
+
+    // Tangani error syntax JSON yang tidak valid
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json({
+            sukses: false,
+            pesan: 'Format data JSON pada request tidak valid'
+        });
+    }
+
     console.error('Error:', err);
-    res.status(500).json({
+    res.status(err.status || 500).json({
         sukses: false,
-        pesan: 'Terjadi kesalahan internal server',
-        error: err.message,
-        stack: err.stack
+        pesan: err.message || 'Terjadi kesalahan internal server'
     });
 });
 

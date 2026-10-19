@@ -304,12 +304,75 @@ export default function ScanPage() {
         hasProcessedRef.current = false;
     };
 
-    // Handle photo capture from file input
-    const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Kompresi gambar client-side sebelum diupload
+    const compressImage = async (file: File, maxWidth = 1600, quality = 0.8): Promise<File> => {
+        if (!file.type.startsWith('image/') || file.size < 400 * 1024) {
+            return file;
+        }
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        resolve(file);
+                        return;
+                    }
+
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(
+                        (blob) => {
+                            if (!blob || blob.size >= file.size) {
+                                resolve(file);
+                            } else {
+                                const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                                const compressedFile = new File([blob], cleanName, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now(),
+                                });
+                                resolve(compressedFile);
+                            }
+                        },
+                        'image/jpeg',
+                        quality
+                    );
+                };
+                img.onerror = () => resolve(file);
+            };
+            reader.onerror = () => resolve(file);
+        });
+    };
+
+    // Handle photo capture from file input with automatic compression
+    const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
-        const file = files[0];
+        const rawFile = files[0];
+        let file = rawFile;
+        try {
+            file = await compressImage(rawFile);
+        } catch (err) {
+            console.warn('Gagal mengompresi foto, menggunakan file asli:', err);
+            file = rawFile;
+        }
+
         const preview = URL.createObjectURL(file);
 
         setPhotos(prev => [...prev, {
@@ -321,6 +384,9 @@ export default function ScanPage() {
         // Reset input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+        if (galleryInputRef.current) {
+            galleryInputRef.current.value = '';
         }
 
         // Auto-advance
