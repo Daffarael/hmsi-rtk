@@ -144,8 +144,8 @@ export default function ScanPage() {
 
                     setIsProcessing(true);
                     try {
-                        // Detect if this is a Piket QR
-                        const isPiketQR = decodedText.startsWith('PIKET-');
+                        // Detect if this is a Piket QR (reguler atau ganti)
+                        const isPiketQR = decodedText.startsWith('PIKET-') || decodedText.startsWith('GANTI-') || decodedText.includes('PIKET-');
 
                         if (isPiketQR) {
                             const response = await api.scanPiket(decodedText);
@@ -486,7 +486,10 @@ export default function ScanPage() {
                 setPiketStep(mode === 'checkout' ? 'selfie_keluar' : 'selfie');
             }
         } catch (err: any) {
-            setError(err.message || 'Terjadi kesalahan saat memproses absen piket ganti');
+            setResult({
+                sukses: false,
+                pesan: err.message || 'Terjadi kesalahan saat memproses absen piket ganti',
+            });
         } finally {
             setIsProcessing(false);
         }
@@ -767,8 +770,62 @@ export default function ScanPage() {
                 </motion.div>
             )}
 
+            {/* Form Ganti Piket */}
+            {showGantiForm && !result && (
+                <motion.div
+                    className={styles.gantiCard}
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                >
+                    <div className={styles.gantiIcon}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M16 3h5v5" />
+                            <path d="M4 20L21 3" />
+                            <path d="M21 16v5h-5" />
+                            <path d="M15 15l6 6" />
+                            <path d="M4 4l5 5" />
+                        </svg>
+                    </div>
+                    <h2>Ganti Jadwal Piket</h2>
+                    <p className={styles.gantiDesc}>
+                        Silakan pilih tanggal jadwal piket asli Anda yang ingin digantikan ke hari ini:
+                    </p>
+                    <div className={styles.gantiInputGroup}>
+                        <label htmlFor="tanggal-ganti-input">Tanggal Piket Asli</label>
+                        <input
+                            id="tanggal-ganti-input"
+                            type="date"
+                            className="input-field"
+                            value={tanggalGanti}
+                            onChange={(e) => setTanggalGanti(e.target.value)}
+                        />
+                    </div>
+                    <div className={styles.gantiActions}>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => {
+                                setShowGantiForm(false);
+                                setPendingQR('');
+                                setTanggalGanti('');
+                            }}
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={handleSubmitGanti}
+                            disabled={!tanggalGanti || isProcessing}
+                        >
+                            {isProcessing ? 'Memproses...' : 'Lanjut Absen'}
+                        </button>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Scanner Area */}
-            {!result && (
+            {!result && !showGantiForm && (
                 <div className={styles.scannerArea}>
                     {!scanning ? (
                         <motion.div

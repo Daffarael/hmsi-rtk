@@ -490,3 +490,78 @@
     color: var(--abu-500);
     font-size: 0.875rem;
 }
+
+/* Form Ganti Piket Card */
+.gantiCard {
+    background: var(--putih);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.gantiIcon {
+    width: 72px;
+    height: 72px;
+    background: #fef3c7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: #d97706;
+}
+
+.gantiCard h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--abu-900);
+}
+
+.gantiDesc {
+    font-size: 0.875rem;
+    color: var(--abu-500);
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+.gantiInputGroup {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.gantiInputGroup label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--abu-700);
+}
+
+.gantiInputGroup input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid var(--abu-200);
+    border-radius: var(--radius-md);
+    background: var(--abu-50);
+    color: var(--abu-900);
+    box-sizing: border-box;
+}
+
+.gantiInputGroup input:focus {
+    outline: none;
+    border-color: var(--utama-500);
+    background: var(--putih);
+}
+
+.gantiActions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.gantiActions button {
+    flex: 1;
+}
