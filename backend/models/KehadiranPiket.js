@@ -27,6 +27,10 @@ const KehadiranPiket = sequelize.define('KehadiranPiket', {
     waktu_selesai: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    is_ganti: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, {
     tableName: 'kehadiran_piket',

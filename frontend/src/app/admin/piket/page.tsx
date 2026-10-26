@@ -36,6 +36,8 @@ interface KehadiranItem {
     sudah_lewat: boolean;
     kehadiran_id: number | null;
     ada_bukti: boolean;
+    is_ganti?: boolean;
+    tanggal_pelaksanaan?: string | null;
 }
 
 interface BuktiItem {
@@ -94,6 +96,7 @@ export default function PiketPage() {
     const [showBuktiModal, setShowBuktiModal] = useState(false);
     const [buktiPhotos, setBuktiPhotos] = useState<BuktiItem[]>([]);
     const [buktiLoading, setBuktiLoading] = useState(false);
+    const [buktiInfo, setBuktiInfo] = useState<{ is_ganti: boolean; keterangan: string; detail?: any } | null>(null);
 
     const fetchJadwal = async () => {
         setLoading(true);
@@ -202,13 +205,24 @@ export default function PiketPage() {
     };
 
     // View bukti piket photos
-    const handleViewBukti = async (kehadiranId: number) => {
+    const handleViewBukti = async (kehadiranId: number, isGantiHint?: boolean) => {
         setBuktiLoading(true);
         setShowBuktiModal(true);
+        setBuktiInfo({
+            is_ganti: !!isGantiHint,
+            keterangan: isGantiHint ? 'Bukti Ganti Piket' : 'Bukti Piket'
+        });
         try {
-            const res = await api.getBuktiPiket(kehadiranId);
+            const res: any = await api.getBuktiPiket(kehadiranId);
             if (res.sukses) {
                 setBuktiPhotos(res.data as BuktiItem[]);
+                if (res.keterangan) {
+                    setBuktiInfo({
+                        is_ganti: res.is_ganti,
+                        keterangan: res.keterangan,
+                        detail: res.detail
+                    });
+                }
             }
         } catch (error) {
             console.error('Error fetching bukti:', error);
@@ -433,11 +447,11 @@ export default function PiketPage() {
                                                                             </button>
                                                                             {kehadiran.ada_bukti && kehadiran.kehadiran_id && (
                                                                                 <button
-                                                                                    className={styles.buktiBtn}
-                                                                                    onClick={() => handleViewBukti(kehadiran.kehadiran_id!)}
-                                                                                    title="Lihat bukti foto"
+                                                                                    className={`${styles.buktiBtn} ${kehadiran.is_ganti ? styles.buktiGantiBtn : ''}`}
+                                                                                    onClick={() => handleViewBukti(kehadiran.kehadiran_id!, kehadiran.is_ganti)}
+                                                                                    title={kehadiran.is_ganti ? 'Lihat bukti ganti piket' : 'Lihat bukti piket'}
                                                                                 >
-                                                                                    📷 Bukti
+                                                                                    {kehadiran.is_ganti ? '🔄 Bukti Ganti' : '📷 Bukti'}
                                                                                 </button>
                                                                             )}
                                                                         </>
@@ -669,8 +683,20 @@ export default function PiketPage() {
                             exit={{ scale: 0.9 }}
                             style={{ maxWidth: '600px' }}
                         >
-                            <div className="modal-header">
-                                <h3>📷 Bukti Foto Piket</h3>
+                            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                                        {buktiInfo?.is_ganti ? '🔄' : '📷'} {buktiInfo?.keterangan || (buktiInfo?.is_ganti ? 'Bukti Ganti Piket' : 'Bukti Piket')}
+                                    </h3>
+                                    {buktiInfo?.detail && (
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--abu-500)', marginTop: '4px', marginBottom: 0 }}>
+                                            {buktiInfo.detail.nama} • {buktiInfo.is_ganti ? `Piket Pengganti (${buktiInfo.detail.hari?.toUpperCase()}, ${buktiInfo.detail.tanggal}) - Jadwal Asli: ${buktiInfo.detail.hari_jadwal?.toUpperCase()}` : `Piket Reguler (${buktiInfo.detail.hari?.toUpperCase() || ''}, ${buktiInfo.detail.tanggal})`}
+                                        </p>
+                                    )}
+                                </div>
+                                <span className={`${styles.buktiHeaderBadge} ${buktiInfo?.is_ganti ? styles.badgeGanti : styles.badgeReguler}`}>
+                                    {buktiInfo?.is_ganti ? 'Ganti Piket' : 'Piket Reguler'}
+                                </span>
                             </div>
                             <div className="modal-body">
                                 {buktiLoading ? (
@@ -679,13 +705,14 @@ export default function PiketPage() {
                                     </div>
                                 ) : buktiPhotos.length > 0 ? (
                                     <div className={styles.buktiGroups}>
-                                        {(['selfie', 'sekre_sebelum', 'sekre_sesudah'] as const).map(tipe => {
+                                        {(['selfie', 'selfie_keluar', 'sekre_sebelum', 'sekre_sesudah'] as const).map(tipe => {
                                             const filtered = buktiPhotos.filter(b => b.tipe === tipe);
                                             if (filtered.length === 0) return null;
                                             return (
                                                 <div key={tipe} className={styles.buktiGroup}>
                                                     <h4>
-                                                        {tipe === 'selfie' && '📸 Selfie'}
+                                                        {tipe === 'selfie' && '📸 Selfie (Masuk)'}
+                                                        {tipe === 'selfie_keluar' && '📸 Selfie (Pulang)'}
                                                         {tipe === 'sekre_sebelum' && '🏢 Sekre (Sebelum)'}
                                                         {tipe === 'sekre_sesudah' && '✨ Sekre (Sesudah)'}
                                                     </h4>
@@ -705,7 +732,7 @@ export default function PiketPage() {
                                 )}
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => { setShowBuktiModal(false); setBuktiPhotos([]); }}>Tutup</button>
+                                <button className="btn btn-secondary" onClick={() => { setShowBuktiModal(false); setBuktiPhotos([]); setBuktiInfo(null); }}>Tutup</button>
                             </div>
                         </motion.div>
                     </motion.div>

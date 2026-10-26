@@ -279,16 +279,38 @@ exports.getKehadiranPiket = async (req, res) => {
                 const dayOfWeek = current.getDay();
                 if (dayOfWeek === hariMap[jadwal.hari]) {
                     const tanggalStr = formatLocalDate(current);
-                    const kehadiranRecord = jadwal.kehadiran_piket.find(k => k.tanggal === tanggalStr);
+                    const targetMinggu = getMingguKe(current);
+
+                    // 1. Cek scan reguler di tanggal ini
+                    let kehadiranRecord = jadwal.kehadiran_piket.find(k => k.tanggal === tanggalStr);
+                    let isGantiRecord = false;
+
+                    // 2. Jika tidak ada di tanggal ini, cek apakah ada piket ganti di minggu ini
+                    if (!kehadiranRecord) {
+                        kehadiranRecord = jadwal.kehadiran_piket.find(k => {
+                            const mingguk = getMingguKe(k.tanggal);
+                            const hariK = getNamaHari(k.tanggal);
+                            return mingguk === targetMinggu && (k.is_ganti || hariK !== jadwal.hari);
+                        });
+                        if (kehadiranRecord) {
+                            isGantiRecord = true;
+                        }
+                    } else {
+                        const hariK = getNamaHari(kehadiranRecord.tanggal);
+                        isGantiRecord = Boolean(kehadiranRecord.is_ganti || hariK !== jadwal.hari);
+                    }
+
                     const sudahLewat = current < today;
 
                     tanggalPiket.push({
                         tanggal: tanggalStr,
-                        minggu_ke: getMingguKe(current),
+                        minggu_ke: targetMinggu,
                         hadir: !!kehadiranRecord,
                         sudah_lewat: sudahLewat,
                         kehadiran_id: kehadiranRecord?.id || null,
-                        ada_bukti: kehadiranRecord?.bukti_piket?.length > 0 || false
+                        ada_bukti: kehadiranRecord?.bukti_piket?.length > 0 || false,
+                        is_ganti: isGantiRecord,
+                        tanggal_pelaksanaan: kehadiranRecord?.tanggal || null
                     });
                 }
                 current.setDate(current.getDate() + 1);
@@ -560,7 +582,8 @@ exports.scanPiket = async (req, res) => {
         const kehadiran = await KehadiranPiket.create({
             jadwal_piket_id: jadwalPiket.id,
             tanggal: tanggalIni,
-            waktu_scan: new Date()
+            waktu_scan: new Date(),
+            is_ganti: isGanti ? 1 : 0
         });
 
         res.json({
@@ -762,6 +785,20 @@ exports.getBuktiPiket = async (req, res) => {
     try {
         const { kehadiran_piket_id } = req.params;
 
+        const kehadiran = await KehadiranPiket.findByPk(parseInt(kehadiran_piket_id), {
+            include: [
+                {
+                    model: JadwalPiket,
+                    as: 'jadwal_piket',
+                    include: [{ model: Pengguna, as: 'pengguna', attributes: ['id', 'nama_lengkap', 'nama_panggilan'] }]
+                }
+            ]
+        });
+
+        const hariTanggal = kehadiran ? getNamaHari(kehadiran.tanggal) : null;
+        const hariJadwal = kehadiran?.jadwal_piket?.hari || null;
+        const isGanti = Boolean(kehadiran?.is_ganti || (hariJadwal && hariTanggal && hariTanggal !== hariJadwal));
+
         const buktiList = await BuktiPiket.findAll({
             where: { kehadiran_piket_id: parseInt(kehadiran_piket_id) },
             order: [['dibuat_pada', 'ASC']]
@@ -778,7 +815,15 @@ exports.getBuktiPiket = async (req, res) => {
 
         res.json({
             sukses: true,
-            data
+            data,
+            is_ganti: isGanti,
+            keterangan: isGanti ? 'Bukti Ganti Piket' : 'Bukti Piket',
+            detail: kehadiran ? {
+                tanggal: kehadiran.tanggal,
+                hari: hariTanggal,
+                hari_jadwal: hariJadwal,
+                nama: kehadiran.jadwal_piket?.pengguna?.nama_lengkap || kehadiran.jadwal_piket?.pengguna?.nama_panggilan
+            } : null
         });
     } catch (error) {
         console.error('Error getBuktiPiket:', error);

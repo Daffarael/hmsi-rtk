@@ -95,6 +95,13 @@ const startServer = async () => {
         await sequelize.sync({ alter: false });
         console.log('✅ Sinkronisasi database berhasil');
 
+        // Pastikan kolom is_ganti ada di tabel kehadiran_piket
+        try {
+            await sequelize.query("ALTER TABLE kehadiran_piket ADD COLUMN is_ganti TINYINT(1) DEFAULT 0");
+        } catch (e) {
+            // Kolom sudah ada
+        }
+
         app.listen(PORT, () => {
             console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
             console.log(`📝 API tersedia di http://localhost:${PORT}/api`);
