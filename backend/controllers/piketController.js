@@ -441,6 +441,69 @@ exports.scanPiket = async (req, res) => {
             return res.status(400).json({ sukses: false, pesan: 'Hari ini bukan hari piket (Senin-Jumat)' });
         }
 
+        // Cek apakah pengguna sudah memiliki sesi piket yang belum checkout hari ini
+        const sesiAktifHariIni = await KehadiranPiket.findOne({
+            where: {
+                tanggal: tanggalIni,
+                waktu_selesai: null
+            },
+            include: [{
+                model: JadwalPiket,
+                as: 'jadwal_piket',
+                where: {
+                    pengguna_id: penggunaId,
+                    periode_id: qrPiket.periode_id
+                }
+            }]
+        });
+
+        if (sesiAktifHariIni) {
+            // Sesi aktif ditemukan -> Pengguna sedang checkout (pulang)
+            const SELISIH_MIN = 75 * 60 * 1000;
+            const waktuMulai = new Date(sesiAktifHariIni.waktu_scan);
+            const durasiBerlalu = new Date() - waktuMulai;
+            
+            if (durasiBerlalu < SELISIH_MIN) {
+                const sisaMenit = Math.ceil((SELISIH_MIN - durasiBerlalu) / 60000);
+                return res.status(400).json({ 
+                    sukses: false, 
+                    pesan: `Anda baru bisa menyelesaikan piket (scan pulang) setelah 1 jam 15 menit dari waktu masuk. Sisa waktu: ${sisaMenit} menit.`
+                });
+            }
+
+            return res.json({
+                sukses: true,
+                pesan: 'Melanjutkan piket, silakan upload bukti selesai.',
+                data: {
+                    kehadiran_piket_id: sesiAktifHariIni.id,
+                    hari: hariIni,
+                    tanggal: tanggalIni,
+                    waktu_scan: sesiAktifHariIni.waktu_scan,
+                    mode: 'checkout'
+                }
+            });
+        }
+
+        // Cek apakah pengguna sudah menyelesaikan piket hari ini
+        const sudahSelesaiHariIni = await KehadiranPiket.findOne({
+            where: {
+                tanggal: tanggalIni,
+                waktu_selesai: { [Op.ne]: null }
+            },
+            include: [{
+                model: JadwalPiket,
+                as: 'jadwal_piket',
+                where: {
+                    pengguna_id: penggunaId,
+                    periode_id: qrPiket.periode_id
+                }
+            }]
+        });
+
+        if (sudahSelesaiHariIni) {
+            return res.status(400).json({ sukses: false, pesan: 'Anda sudah menyelesaikan piket secara penuh hari ini' });
+        }
+
         let jadwalTargetHari = hariIni;
         
         // Jika mode ganti piket, cek apakah jadwal aslinya ada di hari yang dipilih
@@ -450,8 +513,15 @@ exports.scanPiket = async (req, res) => {
                 return res.json({ sukses: true, data: { perlu_tanggal_ganti: true, pesan: 'Silakan pilih tanggal piket yang ingin diganti' } });
             }
             
-            const dateGanti = new Date(tanggal_ganti);
-            jadwalTargetHari = getNamaHari(dateGanti);
+            // Parsing aman dari pergeseran timezone (UTC)
+            if (typeof tanggal_ganti === 'string' && tanggal_ganti.includes('-')) {
+                const parts = tanggal_ganti.split('-').map(Number);
+                const dateGanti = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+                jadwalTargetHari = getNamaHari(dateGanti);
+            } else {
+                const dateGanti = new Date(tanggal_ganti);
+                jadwalTargetHari = getNamaHari(dateGanti);
+            }
         }
 
         // Cek jadwal piket anggota berdasarkan hari
@@ -474,9 +544,7 @@ exports.scanPiket = async (req, res) => {
             });
         }
 
-        // Cek apakah sudah scan hari ini (menggunakan tanggalIni = hari eksekusi)
-        // Jika ganti piket, kita tetap catat kehadirannya untuk hari ini (real execution date), 
-        // tapi jadwal_piket_id mengacu ke jadwal asli mereka
+        // Cek apakah sudah scan masuk hari ini
         const sudahScan = await KehadiranPiket.findOne({
             where: {
                 jadwal_piket_id: jadwalPiket.id,
@@ -485,34 +553,7 @@ exports.scanPiket = async (req, res) => {
         });
 
         if (sudahScan) {
-            if (sudahScan.waktu_selesai) {
-                return res.status(400).json({ sukses: false, pesan: 'Anda sudah menyelesaikan piket secara penuh hari ini' });
-            }
-
-            // 1 Jam 15 Menit logic
-            const SELISIH_MIN = 75 * 60 * 1000;
-            const waktuMulai = new Date(sudahScan.waktu_scan);
-            const durasiBerlalu = new Date() - waktuMulai;
-            
-            if (durasiBerlalu < SELISIH_MIN) {
-                const sisaMenit = Math.ceil((SELISIH_MIN - durasiBerlalu) / 60000);
-                return res.status(400).json({ 
-                    sukses: false, 
-                    pesan: `Anda baru bisa menyelesaikan piket (scan pulang) setelah 1 jam 15 menit dari waktu masuk. Sisa waktu: ${sisaMenit} menit.`
-                });
-            }
-
-            return res.json({
-                sukses: true,
-                pesan: 'Melanjutkan piket, silakan upload bukti selesai.',
-                data: {
-                    kehadiran_piket_id: sudahScan.id,
-                    hari: hariIni,
-                    tanggal: tanggalIni,
-                    waktu_scan: sudahScan.waktu_scan,
-                    mode: 'checkout'
-                }
-            });
+            return res.status(400).json({ sukses: false, pesan: 'Anda sudah melakukan scan masuk hari ini' });
         }
 
         // Mulai Piket
