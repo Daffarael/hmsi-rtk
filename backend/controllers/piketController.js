@@ -5,22 +5,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Multer storage config for piket photos
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const now = new Date();
-        const dir = path.join(__dirname, '..', 'uploads', 'piket', `${now.getFullYear()}`, `${String(now.getMonth() + 1).padStart(2, '0')}`);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-        const ext = path.extname(file.originalname) || '.jpg';
-        cb(null, `piket-${uniqueSuffix}${ext}`);
-    }
-});
+const { uploadBufferToCloudinary } = require('../config/cloudinary');
+
+// Multer storage config for piket photos (memory storage for Cloudinary upload)
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage,
@@ -742,22 +730,42 @@ exports.uploadBuktiPiket = async (req, res) => {
         // Parse tipe list (could be string or array)
         const tipeArr = Array.isArray(tipeList) ? tipeList : [tipeList];
 
-        // Save records
+        // Save records (upload directly to Cloudinary)
+        const now = new Date();
+        const yearMonth = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const folder = `hmsi-rtk/piket/${yearMonth}`;
+
         const buktiRecords = [];
         for (let i = 0; i < req.files.length; i++) {
             const file = req.files[i];
             const tipe = tipeArr[i] || 'sekre_sesudah';
+            let storedFilePath = '';
 
-            // Store relative path from uploads dir
-            const relativePath = path.relative(
-                path.join(__dirname, '..', 'uploads'),
-                file.path
-            ).replace(/\\/g, '/');
+            if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+                // Upload ke Cloudinary dari buffer memory
+                const uploadResult = await uploadBufferToCloudinary(file.buffer, {
+                    folder,
+                    public_id: `piket-${Date.now()}-${Math.round(Math.random() * 1E9)}`
+                });
+                storedFilePath = uploadResult.secure_url;
+            } else {
+                // Fallback simpan lokal jika env Cloudinary tidak tersedia
+                const localDir = path.join(__dirname, '..', 'uploads', 'piket', `${now.getFullYear()}`, `${String(now.getMonth() + 1).padStart(2, '0')}`);
+                if (!fs.existsSync(localDir)) {
+                    fs.mkdirSync(localDir, { recursive: true });
+                }
+                const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+                const ext = path.extname(file.originalname) || '.jpg';
+                const filename = `piket-${uniqueSuffix}${ext}`;
+                const fullPath = path.join(localDir, filename);
+                fs.writeFileSync(fullPath, file.buffer);
+                storedFilePath = path.relative(path.join(__dirname, '..', 'uploads'), fullPath).replace(/\\/g, '/');
+            }
 
             const bukti = await BuktiPiket.create({
                 kehadiran_piket_id: parseInt(kehadiran_piket_id),
                 tipe,
-                file_path: relativePath
+                file_path: storedFilePath
             });
             buktiRecords.push(bukti);
         }
@@ -806,12 +814,15 @@ exports.getBuktiPiket = async (req, res) => {
 
         // Add full URL to each bukti
         const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const data = buktiList.map(b => ({
-            id: b.id,
-            tipe: b.tipe,
-            url: `${baseUrl}/uploads/${b.file_path}`,
-            dibuat_pada: b.dibuat_pada
-        }));
+        const data = buktiList.map(b => {
+            const isFullUrl = b.file_path && (b.file_path.startsWith('http://') || b.file_path.startsWith('https://'));
+            return {
+                id: b.id,
+                tipe: b.tipe,
+                url: isFullUrl ? b.file_path : `${baseUrl}/uploads/${b.file_path}`,
+                dibuat_pada: b.dibuat_pada
+            };
+        });
 
         res.json({
             sukses: true,
