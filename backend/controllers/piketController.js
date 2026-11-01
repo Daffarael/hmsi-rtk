@@ -27,26 +27,50 @@ const upload = multer({
 
 exports.uploadMiddleware = upload.array('foto', 10); // max 10 photos
 
-// Helper: Get nama hari dari tanggal
+// Helper: Get nama hari dari tanggal (selalu dalam zona waktu WIB / Asia/Jakarta)
 const getNamaHari = (date) => {
-    const hari = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
-    return hari[new Date(date).getDay()];
+    if (!date) return '';
+    let d = date;
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        d = `${date}T12:00:00+07:00`;
+    }
+    const dayName = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        weekday: 'long'
+    }).format(new Date(d)).toLowerCase();
+    return dayName;
 };
 
-// Helper: Format date to YYYY-MM-DD in LOCAL timezone (NOT UTC)
+// Helper: Format date to YYYY-MM-DD in WIB timezone (Asia/Jakarta)
 const formatLocalDate = (date) => {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    if (!date) return '';
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+    }
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(new Date(date));
+    const year = parts.find(p => p.type === 'year').value;
+    const month = parts.find(p => p.type === 'month').value;
+    const day = parts.find(p => p.type === 'day').value;
     return `${year}-${month}-${day}`;
 };
 
-// Helper: Get kemunculan ke-berapa hari tersebut dalam bulan
-// Contoh: Senin pertama di bulan = 1, Senin kedua = 2, dst.
+// Helper: Get kemunculan ke-berapa hari tersebut dalam bulan (WIB)
 const getMingguKe = (date) => {
-    const d = new Date(date);
-    const day = d.getDate();
+    if (!date) return 1;
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const day = parseInt(date.split('-')[2], 10);
+        return Math.ceil(day / 7);
+    }
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Jakarta',
+        day: 'numeric'
+    }).formatToParts(new Date(date));
+    const day = parseInt(parts.find(p => p.type === 'day').value, 10);
     return Math.ceil(day / 7);
 };
 
@@ -615,7 +639,7 @@ exports.jadwalSaya = async (req, res) => {
         // Cek status piket hari ini
         const today = new Date();
         const hariIni = getNamaHari(today);
-        const tanggalIni = today.toISOString().split('T')[0];
+        const tanggalIni = formatLocalDate(today);
 
         let statusHariIni = null;
         const jadwalHariIni = jadwal.find(j => j.hari === hariIni);

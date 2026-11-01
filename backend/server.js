@@ -1,3 +1,4 @@
+process.env.TZ = 'Asia/Jakarta';
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -10,9 +11,6 @@ const multer = require('multer');
 const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
-
-// Trust reverse proxy (Railway, Render, etc.)
-app.set('trust proxy', 1);
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads', 'piket');
