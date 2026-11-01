@@ -812,14 +812,17 @@ exports.getBuktiPiket = async (req, res) => {
             order: [['dibuat_pada', 'ASC']]
         });
 
-        // Add full URL to each bukti
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        // Map each bukti with clean URL
         const data = buktiList.map(b => {
-            const isFullUrl = b.file_path && (b.file_path.startsWith('http://') || b.file_path.startsWith('https://'));
+            const cleanPath = (b.file_path || '').replace(/\\/g, '/');
+            const fileUrl = (cleanPath.startsWith('http://') || cleanPath.startsWith('https://'))
+                ? cleanPath
+                : `/uploads/${cleanPath}`;
+
             return {
                 id: b.id,
                 tipe: b.tipe,
-                url: isFullUrl ? b.file_path : `${baseUrl}/uploads/${b.file_path}`,
+                url: fileUrl,
                 dibuat_pada: b.dibuat_pada
             };
         });

@@ -8,6 +8,7 @@ const routes = require('./routes');
 const multer = require('multer');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // Trust reverse proxy (Railway, Render, etc.)

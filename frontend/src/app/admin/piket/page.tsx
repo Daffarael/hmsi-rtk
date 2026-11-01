@@ -719,7 +719,15 @@ export default function PiketPage() {
                                                     <div className={styles.buktiPhotoGrid}>
                                                         {filtered.map(b => (
                                                             <a key={b.id} href={b.url} target="_blank" rel="noopener noreferrer" className={styles.buktiPhoto}>
-                                                                <img src={b.url} alt={tipe} />
+                                                                <img
+                                                                    src={b.url}
+                                                                    alt={tipe}
+                                                                    onError={(e) => {
+                                                                        const target = e.currentTarget;
+                                                                        target.onerror = null;
+                                                                        target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f3f4f6"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="12" font-family="sans-serif">Foto tidak ditemukan</text><text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" fill="%23d1d5db" font-size="10" font-family="sans-serif">(File hilang dari server)</text></svg>';
+                                                                    }}
+                                                                />
                                                             </a>
                                                         ))}
                                                     </div>
