@@ -766,24 +766,39 @@ exports.uploadBuktiPiket = async (req, res) => {
             let storedFilePath = '';
 
             if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-                // Upload ke Cloudinary dari buffer memory
-                const uploadResult = await uploadBufferToCloudinary(file.buffer, {
-                    folder,
-                    public_id: `piket-${Date.now()}-${Math.round(Math.random() * 1E9)}`
-                });
-                storedFilePath = uploadResult.secure_url;
-            } else {
-                // Fallback simpan lokal jika env Cloudinary tidak tersedia
-                const localDir = path.join(__dirname, '..', 'uploads', 'piket', `${now.getFullYear()}`, `${String(now.getMonth() + 1).padStart(2, '0')}`);
-                if (!fs.existsSync(localDir)) {
-                    fs.mkdirSync(localDir, { recursive: true });
+                // Upload ke Cloudinary dari buffer memory jika konfigurasi tersedia
+                try {
+                    const uploadResult = await uploadBufferToCloudinary(file.buffer, {
+                        folder,
+                        public_id: `piket-${Date.now()}-${Math.round(Math.random() * 1E9)}`
+                    });
+                    storedFilePath = uploadResult.secure_url;
+                } catch (cldErr) {
+                    console.error('Upload Cloudinary gagal, beralih ke penyimpanan database:', cldErr);
                 }
-                const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-                const ext = path.extname(file.originalname) || '.jpg';
-                const filename = `piket-${uniqueSuffix}${ext}`;
-                const fullPath = path.join(localDir, filename);
-                fs.writeFileSync(fullPath, file.buffer);
-                storedFilePath = path.relative(path.join(__dirname, '..', 'uploads'), fullPath).replace(/\\/g, '/');
+            }
+
+            // Jika Cloudinary tidak aktif atau gagal, simpan langsung ke Database (Base64)
+            // agar foto bersifat permanen dan TIDAK PERNAH HILANG saat server Railway restart/redeploy!
+            if (!storedFilePath) {
+                const mimeType = file.mimetype || 'image/jpeg';
+                const base64Data = file.buffer.toString('base64');
+                storedFilePath = `data:${mimeType};base64,${base64Data}`;
+
+                // Simpan juga salinan ke disk lokal sebagai cadangan
+                try {
+                    const localDir = path.join(__dirname, '..', 'uploads', 'piket', `${now.getFullYear()}`, `${String(now.getMonth() + 1).padStart(2, '0')}`);
+                    if (!fs.existsSync(localDir)) {
+                        fs.mkdirSync(localDir, { recursive: true });
+                    }
+                    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+                    const ext = path.extname(file.originalname) || '.jpg';
+                    const filename = `piket-${uniqueSuffix}${ext}`;
+                    const fullPath = path.join(localDir, filename);
+                    fs.writeFileSync(fullPath, file.buffer);
+                } catch (diskErr) {
+                    // Abaikan jika penulisan disk lokal gagal di server cloud
+                }
             }
 
             const bukti = await BuktiPiket.create({
@@ -839,7 +854,7 @@ exports.getBuktiPiket = async (req, res) => {
         // Map each bukti with clean URL
         const data = buktiList.map(b => {
             const cleanPath = (b.file_path || '').replace(/\\/g, '/');
-            const fileUrl = (cleanPath.startsWith('http://') || cleanPath.startsWith('https://'))
+            const fileUrl = (cleanPath.startsWith('http://') || cleanPath.startsWith('https://') || cleanPath.startsWith('data:'))
                 ? cleanPath
                 : `/uploads/${cleanPath}`;
 

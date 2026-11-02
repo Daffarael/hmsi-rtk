@@ -101,6 +101,14 @@ const startServer = async () => {
             // Kolom sudah ada
         }
 
+        // Pastikan kolom file_path di tabel bukti_piket bertipe LONGTEXT agar foto tersimpan permanen
+        try {
+            await sequelize.query("ALTER TABLE bukti_piket MODIFY COLUMN file_path LONGTEXT");
+            console.log('✅ Kolom bukti_piket.file_path dipastikan bertipe LONGTEXT');
+        } catch (e) {
+            // Abaikan jika sudah LONGTEXT
+        }
+
         app.listen(PORT, () => {
             console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
             console.log(`📝 API tersedia di http://localhost:${PORT}/api`);

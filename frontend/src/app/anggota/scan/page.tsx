@@ -305,8 +305,8 @@ export default function ScanPage() {
     };
 
     // Kompresi gambar client-side sebelum diupload
-    const compressImage = async (file: File, maxWidth = 1600, quality = 0.8): Promise<File> => {
-        if (!file.type.startsWith('image/') || file.size < 400 * 1024) {
+    const compressImage = async (file: File, maxWidth = 1200, quality = 0.7): Promise<File> => {
+        if (!file.type.startsWith('image/') || file.size < 100 * 1024) {
             return file;
         }
 

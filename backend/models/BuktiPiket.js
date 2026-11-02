@@ -20,7 +20,7 @@ const BuktiPiket = sequelize.define('BuktiPiket', {
         allowNull: false
     },
     file_path: {
-        type: DataTypes.STRING(500),
+        type: DataTypes.TEXT('long'),
         allowNull: false
     }
 }, {

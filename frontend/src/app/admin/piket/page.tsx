@@ -97,6 +97,7 @@ export default function PiketPage() {
     const [buktiPhotos, setBuktiPhotos] = useState<BuktiItem[]>([]);
     const [buktiLoading, setBuktiLoading] = useState(false);
     const [buktiInfo, setBuktiInfo] = useState<{ is_ganti: boolean; keterangan: string; detail?: any } | null>(null);
+    const [selectedPreview, setSelectedPreview] = useState<{ url: string; title: string } | null>(null);
 
     const fetchJadwal = async () => {
         setLoading(true);
@@ -718,17 +719,28 @@ export default function PiketPage() {
                                                     </h4>
                                                     <div className={styles.buktiPhotoGrid}>
                                                         {filtered.map(b => (
-                                                            <a key={b.id} href={b.url} target="_blank" rel="noopener noreferrer" className={styles.buktiPhoto}>
+                                                            <div
+                                                                key={b.id}
+                                                                className={styles.buktiPhoto}
+                                                                onClick={() => {
+                                                                    const label = tipe === 'selfie' ? '📸 Selfie (Masuk)' :
+                                                                                  tipe === 'selfie_keluar' ? '📸 Selfie (Pulang)' :
+                                                                                  tipe === 'sekre_sebelum' ? '🏢 Sekre (Sebelum)' : '✨ Sekre (Sesudah)';
+                                                                    setSelectedPreview({ url: b.url, title: label });
+                                                                }}
+                                                                style={{ cursor: 'pointer' }}
+                                                                title="Klik untuk melihat foto ukuran penuh"
+                                                            >
                                                                 <img
                                                                     src={b.url}
                                                                     alt={tipe}
                                                                     onError={(e) => {
                                                                         const target = e.currentTarget;
                                                                         target.onerror = null;
-                                                                        target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f3f4f6"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="12" font-family="sans-serif">Foto tidak ditemukan</text><text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" fill="%23d1d5db" font-size="10" font-family="sans-serif">(File hilang dari server)</text></svg>';
+                                                                        target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f8fafc"/><text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="11" font-family="sans-serif" font-weight="bold">Foto Sesi Sebelumnya</text><text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" fill="%23cbd5e1" font-size="9" font-family="sans-serif">(Gunakan sesi piket baru)</text></svg>';
                                                                     }}
                                                                 />
-                                                            </a>
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -741,6 +753,45 @@ export default function PiketPage() {
                             </div>
                             <div className="modal-footer">
                                 <button className="btn btn-secondary" onClick={() => { setShowBuktiModal(false); setBuktiPhotos([]); setBuktiInfo(null); }}>Tutup</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Lightbox Preview Modal */}
+            <AnimatePresence>
+                {selectedPreview && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{ zIndex: 1100 }}
+                        onClick={() => setSelectedPreview(null)}
+                    >
+                        <motion.div
+                            className={styles.lightboxModal}
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.9 }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className={styles.lightboxHeader}>
+                                <h4>{selectedPreview.title}</h4>
+                                <button
+                                    className="btn btn-secondary btn-sm"
+                                    onClick={() => setSelectedPreview(null)}
+                                >
+                                    ✕ Tutup
+                                </button>
+                            </div>
+                            <div className={styles.lightboxBody}>
+                                <img
+                                    src={selectedPreview.url}
+                                    alt={selectedPreview.title}
+                                    className={styles.lightboxImg}
+                                />
                             </div>
                         </motion.div>
                     </motion.div>
